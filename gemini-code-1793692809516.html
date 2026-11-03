@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>요기어때 - UX 프로토타입</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --brand-color: #FF5A5F;
+      --brand-hover: #E0484C;
+    }
+    .bg-brand { background-color: var(--brand-color); }
+    .bg-brand:hover { background-color: var(--brand-hover); }
+    .text-brand { color: var(--brand-color); }
+    .border-brand { border-color: var(--brand-color); }
+    .ring-brand:focus { --tw-ring-color: var(--brand-color); }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800 antialiased min-h-screen flex flex-col font-sans">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+      <!-- Logo Lockup -->
+      <div class="flex items-center space-x-2 cursor-pointer" onclick="showScreen('s0')">
+        <svg class="w-8 h-8 text-brand fill-current" viewBox="0 0 48 48">
+          <path d="M24 4C14.06 4 6 12.06 6 22c0 6.13 3.09 11.54 7.8 14.77L12 44l8.35-3.13C21.6 41.6 22.78 41.9 24 41.9c9.94 0 18-8.06 18-17.9C42 12.06 33.94 4 24 4z"/>
+        </svg>
+        <div>
+          <span class="text-xl font-extrabold text-brand tracking-tight">요기어때</span>
+          <span class="block text-[9px] font-mono tracking-widest text-gray-400 -mt-1">FOOD & PLACE</span>
+        </div>
+      </div>
+
+      <!-- Header Actions -->
+      <div class="flex items-center space-x-3">
+        <button onclick="toggleDrawer()" class="text-xs px-2.5 py-1.5 rounded-full border border-gray-300 font-medium text-gray-600 hover:bg-gray-50 flex items-center gap-1">
+          <span>💡 UX 노트</span>
+        </button>
+        <button onclick="showScreen('s_login')" id="headerLoginBtn" class="text-sm font-semibold text-brand hover:underline">
+          로그인 / 가입
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-lg w-full mx-auto p-4 sm:p-6 flex flex-col justify-center">
+
+    <!-- Screen 0: Store Main -->
+    <section id="s0" class="screen bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-6 text-center">
+      <div class="py-6">
+        <svg class="w-20 h-20 text-brand mx-auto fill-current mb-3" viewBox="0 0 48 48">
+          <path d="M24 4C14.06 4 6 12.06 6 22c0 6.13 3.09 11.54 7.8 14.77L12 44l8.35-3.13C21.6 41.6 22.78 41.9 24 41.9c9.94 0 18-8.06 18-17.9C42 12.06 33.94 4 24 4z"/>
+        </svg>
+        <h1 class="text-2xl font-bold text-gray-900">오늘 뭐 먹지? 요기어때!</h1>
+        <p class="text-sm text-gray-500 mt-1">지금 가입하고 첫 주문 10,000원 쿠폰을 받아보세요.</p>
+      </div>
+      <div class="space-y-3">
+        <button onclick="showScreen('s1')" class="w-full bg-brand text-white py-3.5 rounded-xl font-bold text-base shadow-md hover:bg-opacity-95 transition">
+          30초만에 가입하고 혜택받기
+        </button>
+        <button onclick="showScreen('s_login')" class="w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-semibold text-sm hover:bg-gray-200 transition">
+          기존 계정으로 로그인
+        </button>
+      </div>
+    </section>
+
+    <!-- Screen Login: 이메일 입력 -->
+    <section id="s_login" class="screen hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-6">
+      <div>
+        <h2 class="text-xl font-bold text-gray-900">로그인 또는 회원가입</h2>
+        <p class="text-xs text-gray-500 mt-1">사용하시던 이메일 주소를 입력해 주세요.</p>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">이메일 주소</label>
+          <input type="email" id="loginEmailInput" placeholder="example@yogietdae.com" class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-brand" />
+        </div>
+        <button onclick="handleLoginCheck()" class="w-full bg-brand text-white py-3 rounded-xl font-bold text-sm shadow">
+          계속하기
+        </button>
+      </div>
+      <div class="bg-gray-50 p-3.5 rounded-xl text-xs text-gray-600 space-y-1">
+        <p class="font-bold text-gray-700">💡 데모 테스트 계정 클릭하여 자동 입력</p>
+        <p>• 기존 가입자: <code class="bg-gray-200 px-1 rounded cursor-pointer text-brand font-bold" onclick="fillEmail('user@yogietdae.com')">user@yogietdae.com</code></p>
+        <p>• 탈퇴 제한자: <code class="bg-gray-200 px-1 rounded cursor-pointer text-brand font-bold" onclick="fillEmail('withdrawn@yogietdae.com')">withdrawn@yogietdae.com</code></p>
+      </div>
+    </section>
+
+    <!-- Screen 1: 기본 정보 -->
+    <section id="s1" class="screen hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-5">
+      <div class="flex items-center justify-between text-xs text-gray-500">
+        <span class="font-bold text-brand">1 / 4 단계</span>
+        <span>예상 소요시간: 1분</span>
+      </div>
+      <div class="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
+        <div class="bg-brand h-full w-1/4"></div>
+      </div>
+      <h2 class="text-lg font-bold text-gray-900">기본 정보를 입력해주세요</h2>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">이름</label>
+          <input type="text" id="userName" placeholder="홍길동" value="최세린" class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-brand" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">생년월일 (8자리)</label>
+          <input type="text" maxlength="8" placeholder="20000805" value="20000805" class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-brand" />
+        </div>
+      </div>
+      <button onclick="showScreen('s2')" class="w-full bg-brand text-white py-3 rounded-xl font-bold text-sm shadow">
+        다음 단계로
+      </button>
+    </section>
+
+    <!-- Screen 2: 계정 정보 -->
+    <section id="s2" class="screen hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-5">
+      <div class="flex items-center justify-between text-xs text-gray-500">
+        <span class="font-bold text-brand">2 / 4 단계</span>
+        <span>비밀번호 설정</span>
+      </div>
+      <div class="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
+        <div class="bg-brand h-full w-2/4"></div>
+      </div>
+      <h2 class="text-lg font-bold text-gray-900">아이디와 비밀번호를 설정합니다</h2>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">이메일 주소</label>
+          <input type="email" id="signupEmailInput" placeholder="example@yogietdae.com" class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-brand" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">비밀번호</label>
+          <input type="password" value="password123!" placeholder="8자리 이상 (영문, 숫자 포함)" class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-brand" />
+          <ul class="text-[11px] text-gray-500 mt-2 space-y-1 pl-1">
+            <li class="text-green-600 font-medium">✓ 8자 이상 작성</li>
+            <li class="text-green-600 font-medium">✓ 영문 및 숫자 조합</li>
+          </ul>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="showScreen('s1')" class="w-1/3 bg-gray-100 text-gray-600 py-3 rounded-xl font-semibold text-sm">이전</button>
+        <button onclick="handleSignupStep2Next()" class="w-2/3 bg-brand text-white py-3 rounded-xl font-bold text-sm shadow">다음 단계로</button>
+      </div>
+    </section>
+
+    <!-- Screen 3: 약관 동의 -->
+    <section id="s3" class="screen hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-5">
+      <div class="flex items-center justify-between text-xs text-gray-500">
+        <span class="font-bold text-brand">3 / 4 단계</span>
+        <span>서비스 약관 동의</span>
+      </div>
+      <div class="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
+        <div class="bg-brand h-full w-3/4"></div>
+      </div>
+      <h2 class="text-lg font-bold text-gray-900">약관 동의가 필요합니다</h2>
+      <div class="space-y-3">
+        <label class="flex items-center space-x-2.5 p-3 border border-gray-200 rounded-xl bg-gray-50 font-bold text-sm text-gray-800 cursor-pointer">
+          <input type="checkbox" id="termsAll" onchange="toggleAllTerms(this)" class="w-4 h-4 text-brand rounded focus:ring-brand" checked />
+          <span>전체 동의하기</span>
+        </label>
+        <div class="space-y-2 text-xs text-gray-600 pl-1">
+          <label class="flex items-center justify-between py-1 cursor-pointer">
+            <div class="flex items-center space-x-2">
+              <input type="checkbox" class="term-item w-4 h-4 rounded text-brand focus:ring-brand" checked />
+              <span><strong class="text-brand">[필수]</strong> 이용약관 동의</span>
+            </div>
+            <span class="text-gray-400 underline">보기</span>
+          </label>
+          <label class="flex items-center justify-between py-1 cursor-pointer">
+            <div class="flex items-center space-x-2">
+              <input type="checkbox" class="term-item w-4 h-4 rounded text-brand focus:ring-brand" checked />
+              <span><strong class="text-brand">[필수]</strong> 개인정보 수집 및 이용 동의</span>
+            </div>
+            <span class="text-gray-400 underline">보기</span>
+          </label>
+          <label class="flex items-center justify-between py-1 cursor-pointer">
+            <div class="flex items-center space-x-2">
+              <input type="checkbox" class="term-item w-4 h-4 rounded text-brand focus:ring-brand" checked />
+              <span><strong class="text-gray-400">[선택]</strong> 혜택 및 마케팅 알림 수신</span>
+            </div>
+            <span class="text-gray-400 underline">보기</span>
+          </label>
+        </div>
+      </div>
+      <button onclick="showScreen('s4')" class="w-full bg-brand text-white py-3 rounded-xl font-bold text-sm shadow">인증번호 받기</button>
+    </section>
+
+    <!-- Screen 4: 이메일 인증 -->
+    <section id="s4" class="screen hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-5">
+      <div class="flex items-center justify-between text-xs text-gray-500">
+        <span class="font-bold text-brand">4 / 4 단계</span>
+        <span>이메일 인증</span>
+      </div>
+      <div class="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
+        <div class="bg-brand h-full w-full"></div>
+      </div>
+      <div>
+        <h2 class="text-lg font-bold text-gray-900">인증번호 6자리를 입력해주세요</h2>
+        <p class="text-xs text-gray-500 mt-1">발송된 6자리 코드를 입력해주세요. (남은 시간: <span class="text-brand font-semibold">02:59</span>)</p>
+      </div>
+      <div class="flex justify-between gap-2">
+        <input type="text" maxlength="1" value="1" class="w-11 h-12 text-center text-lg font-bold border border-gray-300 rounded-lg focus:border-brand focus:outline-none" />
+        <input type="text" maxlength="1" value="2" class="w-11 h-12 text-center text-lg font-bold border border-gray-300 rounded-lg focus:border-brand focus:outline-none" />
+        <input type="text" maxlength="1" value="3" class="w-11 h-12 text-center text-lg font-bold border border-gray-300 rounded-lg focus:border-brand focus:outline-none" />
+        <input type="text" maxlength="1" value="4" class="w-11 h-12 text-center text-lg font-bold border border-gray-300 rounded-lg focus:border-brand focus:outline-none" />
+        <input type="text" maxlength="1" value="5" class="w-11 h-12 text-center text-lg font-bold border border-gray-300 rounded-lg focus:border-brand focus:outline-none" />
+        <input type="text" maxlength="1" value="6" class="w-11 h-12 text-center text-lg font-bold border border-gray-300 rounded-lg focus:border-brand focus:outline-none" />
+      </div>
+      <button onclick="showScreen('s_complete')" class="w-full bg-brand text-white py-3 rounded-xl font-bold text-sm shadow">가입 완료하기</button>
+    </section>
+
+    <!-- Screen Complete: 완료 -->
+    <section id="s_complete" class="screen hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center space-y-6">
+      <div class="py-4">
+        <div class="w-16 h-16 bg-red-100 text-brand rounded-full flex items-center justify-center mx-auto mb-3 text-2xl font-bold">✓</div>
+        <h2 class="text-2xl font-bold text-gray-900">가입을 환영합니다!</h2>
+        <p class="text-xs text-gray-500 mt-1">지금 바로 첫 주문 10,000원 할인 혜택을 이용해보세요.</p>
+      </div>
+      <div class="bg-gray-50 p-4 rounded-xl text-left space-y-2 text-xs border border-gray-100">
+        <div class="flex justify-between text-gray-600"><span>가입 계정</span><strong id="completeEmail">user@yogietdae.com</strong></div>
+        <div class="flex justify-between text-gray-600"><span>발급 혜택</span><strong class="text-brand">첫 주문 10,000원 쿠폰</strong></div>
+      </div>
+      <button onclick="showScreen('s0')" class="w-full bg-brand text-white py-3.5 rounded-xl font-bold text-sm shadow">맛집 둘러보러 가기</button>
+    </section>
+
+    <!-- Screen Rejoin Restriction: 탈퇴 후 재가입 제한 특수 화면 -->
+    <section id="s_rejoin" class="screen hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-6">
+      <div class="text-center space-y-2">
+        <svg class="w-14 h-14 text-brand mx-auto fill-current" viewBox="0 0 48 48">
+          <path d="M24 4C14.06 4 6 12.06 6 22c0 6.13 3.09 11.54 7.8 14.77L12 44l8.35-3.13C21.6 41.6 22.78 41.9 24 41.9c9.94 0 18-8.06 18-17.9C42 12.06 33.94 4 24 4z"/>
+        </svg>
+        <h2 class="text-xl font-bold text-gray-900">다시 돌아오셨군요!</h2>
+        <p class="text-xs text-gray-500">요기어때를 다시 찾아주셔서 반가워요.</p>
+      </div>
+
+      <div class="bg-gray-50 p-4 rounded-xl text-xs space-y-3 border border-gray-100 text-gray-700">
+        <p class="leading-relaxed">
+          <strong id="rejoinEmailDisplay" class="text-gray-900">withdrawn@yogietdae.com</strong> 계정은 <br/>
+          <span class="font-semibold text-gray-800">2026년 10월 15일 (목)</span>에 탈퇴했습니다.<br/>
+          탈퇴 후 30일 동안은 동일 이메일로 다시 가입할 수 없어요.
+        </p>
+
+        <div class="bg-white p-3 rounded-lg border border-gray-200 space-y-1.5">
+          <div class="flex justify-between"><span>탈퇴일</span><span class="text-gray-500">2026.10.15</span></div>
+          <div class="flex justify-between font-bold"><span class="text-brand">재가입 가능일</span><span class="text-brand">2026.11.14</span></div>
+          <div class="flex justify-between"><span>남은 기간</span><span class="font-semibold text-gray-800">11일 (D-11)</span></div>
+        </div>
+
+        <div>
+          <div class="flex justify-between text-[10px] text-gray-400 mb-1">
+            <span>탈퇴 10.15</span>
+            <span>가입 가능 11.14</span>
+          </div>
+          <div class="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
+            <div class="bg-brand h-full w-3/5"></div>
+          </div>
+        </div>
+      </div>
+
+      <p class="text-xs text-gray-500 text-center">다른 이메일 주소를 사용하시면 지금 바로 가입하실 수 있습니다.</p>
+
+      <div class="space-y-2">
+        <button onclick="showScreen('s1')" class="w-full bg-brand text-white py-3 rounded-xl font-bold text-sm shadow">다른 이메일로 가입하기</button>
+        <button onclick="alert('가입 가능일에 알림이 설정되었습니다.')" class="w-full bg-gray-100 text-gray-700 py-2.5 rounded-xl font-semibold text-xs">가입 가능일에 알림 받기</button>
+        <button onclick="showScreen('s0')" class="w-full text-xs text-gray-400 py-1 hover:underline text-center block">홈으로 돌아가기</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- UX Notes Drawer -->
+  <aside id="uxDrawer" class="fixed inset-y-0 right-0 w-full sm:w-80 bg-white shadow-2xl border-l border-gray-200 p-5 transform translate-x-full transition-transform duration-300 ease-in-out z-40 flex flex-col">
+    <div class="flex items-center justify-between border-b pb-3 mb-4">
+      <h3 class="font-bold text-gray-900 text-sm flex items-center gap-1.5">
+        <span>💡</span> UX 개선 노트
+      </h3>
+      <button onclick="toggleDrawer()" class="text-gray-400 hover:text-gray-600 font-bold text-lg">✕</button>
+    </div>
+    <div id="uxNoteContent" class="flex-1 overflow-y-auto space-y-4 text-xs text-gray-600">
+      <!-- Dynamic Content -->
+    </div>
+  </aside>
+
+  <script>
+    const uxData = {
+      's0': {
+        title: '01. 스토어 메인',
+        principles: ['제이콥의 법칙', '시각적 위계'],
+        desc: '로그인/가입 버튼을 상단에 명확히 배치하고 핵심 혜택을 강조하여 가입 전환율을 높였습니다.'
+      },
+      's_login': {
+        title: '02. 로그인 / 가입 진입',
+        principles: ['오류 복구', '사용자 통제'],
+        desc: '이메일 확인 시 가입 여부에 따라 유연하게 흐름을 분기하며 탈퇴 계정을 감지합니다.'
+      },
+      's1': {
+        title: '03. 가입 1단계 (기본정보)',
+        principles: ['점진적 공개', '효율성'],
+        desc: '폼을 4단계로 나누어 입력 부담감을 경감하고 프로그레스 바를 제공합니다.'
+      },
+      's2': {
+        title: '04. 가입 2단계 (계정정보)',
+        principles: ['시스템 상태 가시성', '오류 예방'],
+        desc: '비밀번호 규칙을 실시간 체크리스트로 보여주어 입력 제출 전 오류를 방지합니다.'
+      },
+      's3': {
+        title: '05. 가입 3단계 (약관동의)',
+        principles: ['인식 > 기억', '사용자 통제'],
+        desc: '필수/선택 항목을 구별하고 전체 동의 기능을 통해 빠른 입력을 돕습니다.'
+      },
+      's4': {
+        title: '06. 가입 4단계 (인증)',
+        principles: ['시스템 상태 가시성'],
+        desc: '타이머와 자동 이동 6자리 포맷으로 인증 입력을 가이드합니다.'
+      },
+      's_complete': {
+        title: '07. 가입 완료',
+        principles: ['감정적 디자인', '피크엔드 법칙'],
+        desc: '가입 즉시 사용할 할인 쿠폰을 명시하여 긍정적인 첫 사용자 경험을 형성합니다.'
+      },
+      's_rejoin': {
+        title: '08. 탈퇴 후 재가입 제한',
+        principles: ['피크엔드 법칙', '오류 복구'],
+        desc: '거절 문구 대신 환영 인사로 시작하며, 명확한 재가입 가능일(D-Day)과 다른 이메일 가입 대안을 제시합니다.'
+      }
+    };
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(el => el.classList.add('hidden'));
+      const target = document.getElementById(screenId);
+      if (target) {
+        target.classList.remove('hidden');
+        updateUxNote(screenId);
+      }
+    }
+
+    function updateUxNote(screenId) {
+      const data = uxData[screenId] || uxData['s0'];
+      const container = document.getElementById('uxNoteContent');
+      container.innerHTML = `
+        <div class="bg-red-50 text-brand p-3 rounded-lg font-bold">${data.title}</div>
+        <div>
+          <strong class="block text-gray-800 mb-1">적용 UX 원칙:</strong>
+          <div class="flex flex-wrap gap-1 mb-3">
+            ${data.principles.map(p => `<span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[10px] border border-gray-200">${p}</span>`).join('')}
+          </div>
+          <strong class="block text-gray-800 mb-1">기획 의도:</strong>
+          <p class="leading-relaxed text-gray-600">${data.desc}</p>
+        </div>
+      `;
+    }
+
+    function toggleDrawer() {
+      document.getElementById('uxDrawer').classList.toggle('translate-x-full');
+    }
+
+    function handleLoginCheck() {
+      const email = document.getElementById('loginEmailInput').value.trim();
+      if (email === 'withdrawn@yogietdae.com') {
+        document.getElementById('rejoinEmailDisplay').innerText = email;
+        showScreen('s_rejoin');
+      } else {
+        document.getElementById('signupEmailInput').value = email || 'user@yogietdae.com';
+        document.getElementById('completeEmail').innerText = email || 'user@yogietdae.com';
+        showScreen('s1');
+      }
+    }
+
+    function handleSignupStep2Next() {
+      const email = document.getElementById('signupEmailInput').value.trim();
+      if (email === 'withdrawn@yogietdae.com') {
+        document.getElementById('rejoinEmailDisplay').innerText = email;
+        showScreen('s_rejoin');
+      } else {
+        showScreen('s3');
+      }
+    }
+
+    function fillEmail(email) {
+      document.getElementById('loginEmailInput').value = email;
+    }
+
+    function toggleAllTerms(master) {
+      document.querySelectorAll('.term-item').forEach(cb => cb.checked = master.checked);
+    }
+
+    showScreen('s0');
+  </script>
+</body>
+</html>
