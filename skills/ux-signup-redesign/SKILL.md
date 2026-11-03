@@ -1,6 +1,6 @@
 ---
-name: ux-signup-redesign
-description: 회원가입 등 사용자 흐름 캡처를 UX 원칙으로 분석하고, 문제를 보완한 클릭형 HTML 프로토타입과 UX 개선 노트를 만들어 GitHub에 올릴 때 사용
+name: "ux-signup-redesign"
+description: "회원가입 등 사용자 흐름 캡처를 UX 원칙으로 분석하고, 문제를 보완한 클릭형 HTML 프로토타입과 UX 개선 노트를 만들어 GitHub에 올릴 때 사용"
 ---
 
 # UX 원칙 기반 회원가입(사용자 흐름) 개선 — 전체 과정

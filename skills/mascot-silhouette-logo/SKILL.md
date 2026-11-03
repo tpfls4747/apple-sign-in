@@ -1,6 +1,6 @@
 ---
-name: mascot-silhouette-logo
-description: 사용자가 준 캐릭터·이모티콘 이미지에서 얼굴(머리) 실루엣만 추출해 눈코입 없는 단색 SVG 로고 심볼과 워드마크를 만들 때 사용
+name: "mascot-silhouette-logo"
+description: "사용자가 준 캐릭터·이모티콘 이미지에서 얼굴(머리) 실루엣만 추출해 눈코입 없는 단색 SVG 로고 심볼과 워드마크를 만들 때 사용"
 ---
 
 # 마스코트 얼굴 실루엣 로고

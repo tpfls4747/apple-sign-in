@@ -1,6 +1,6 @@
 ---
-name: account-rejoin-restriction
-description: 탈퇴 후 일정 기간(예: 30일) 재가입을 막는 정책을 환영 인사, 탈퇴일, 가입 가능일, 대안 버튼이 있는 재가입 안내 화면으로 프로토타입에 추가할 때 사용
+name: "account-rejoin-restriction"
+description: "탈퇴 후 일정 기간(예: 30일) 재가입을 막는 정책을 환영 인사, 탈퇴일, 가입 가능일, 대안 버튼이 있는 재가입 안내 화면으로 프로토타입에 추가할 때 사용"
 ---
 
 # 탈퇴 후 재가입 제한 화면
