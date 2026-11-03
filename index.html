@@ -273,7 +273,7 @@ main>section:not(.home){background:var(--bg);min-height:calc(100vh - var(--gnb-h
 .card .sub{text-align:center;font-size:15px;margin:10px 0 28px}
 .card .sub .linkbtn{font-size:inherit}
 .steps{max-width:440px;margin-bottom:28px}
-.steps ol{grid-template-columns:repeat(5,minmax(0,1fr))}
+.steps ol{grid-template-columns:repeat(4,minmax(0,1fr))}
 .steps li i{height:3px}
 .steps .count{text-align:center}
 @media (max-width:480px){.steps li:not(.now){font-size:0;gap:0}}
@@ -299,9 +299,6 @@ main>section:not(.home){background:var(--bg);min-height:calc(100vh - var(--gnb-h
 @keyframes sp{to{transform:rotate(360deg)}}
 .caps{font-size:12px;color:var(--warn);background:var(--warn-soft);padding:6px 10px;border-radius:8px;margin:0}
 .row2{gap:10px}
-.inline{display:flex;gap:8px;align-items:flex-start}
-.inline .inp{flex:1;min-width:0}
-.inline .btn{width:auto;height:58px;padding:0 18px;flex:none}
 .forgot{justify-self:start;font-size:14px;margin-top:2px}
 .card form>.check{margin:2px 0 18px}
 
@@ -309,9 +306,6 @@ main>section:not(.home){background:var(--bg);min-height:calc(100vh - var(--gnb-h
 .code input{height:58px;border-radius:var(--r-sm)}
 .code input:disabled{background:var(--bg-alt);color:var(--muted)}
 .agree-all{border-radius:var(--r-sm);background:var(--bg-alt);border-color:transparent}
-.smslabel{font-size:13px;color:var(--muted);margin:18px 0 4px}
-.verified{display:flex;align-items:center;gap:8px;color:var(--ok);background:var(--ok-soft);border-radius:var(--r-sm);padding:12px 14px;font-size:14px;margin:6px 0 0}
-.verified svg{width:18px;height:18px}
 .demo{border-radius:8px}
 
 /* done */
@@ -460,9 +454,9 @@ main>section:not(.home){background:var(--bg);min-height:calc(100vh - var(--gnb-h
       <button class="back" data-go="home"><svg><use href="#i-left"/></svg>쇼핑 계속하기</button>
       <div class="steps" aria-label="가입 진행 단계">
         <ol id="stepList">
-          <li><i></i>기본 정보</li><li><i></i>계정 정보</li><li><i></i>약관 동의</li><li><i></i>휴대폰 인증</li><li><i></i>이메일 인증</li>
+          <li><i></i>기본 정보</li><li><i></i>계정 정보</li><li><i></i>약관 동의</li><li><i></i>이메일 인증</li>
         </ol>
-        <div class="count" id="stepCount">1 / 5 · 약 2분 남음</div>
+        <div class="count" id="stepCount">1 / 4 · 약 1분 30초 남음</div>
       </div>
       <div class="card">
         <!-- step 1 -->
@@ -526,7 +520,7 @@ main>section:not(.home){background:var(--bg);min-height:calc(100vh - var(--gnb-h
             <h3><span>필수 동의</span><span id="reqCount">0 / 3</span></h3>
             <div class="ag" data-req>
               <div class="top"><label for="ag1"><input type="checkbox" id="ag1" class="agc"><span class="tag req">필수</span><span>개인정보 수집·이용</span></label><button type="button" class="more" aria-controls="d1">보기</button></div>
-              <p class="detail" id="d1" hidden>이름, 생년월일, 이메일, 휴대폰 번호를 계정 생성과 본인 확인, 주문 처리에 사용해요. 탈퇴하면 5일 안에 지워요.</p>
+              <p class="detail" id="d1" hidden>이름, 생년월일, 이메일을 계정 생성과 주문 처리에 사용해요. 탈퇴하면 5일 안에 지워요.</p>
             </div>
             <div class="ag" data-req>
               <div class="top"><label for="ag2"><input type="checkbox" id="ag2" class="agc"><span class="tag req">필수</span><span>개인정보 제3자 제공</span></label><button type="button" class="more" aria-controls="d2">보기</button></div>
@@ -550,33 +544,8 @@ main>section:not(.home){background:var(--bg);min-height:calc(100vh - var(--gnb-h
           <div class="actions"><button class="btn btn-line" type="button" data-prev>이전</button><button class="btn btn-primary" type="submit">동의하고 계속</button></div>
         </form>
 
-        <!-- step 4: phone -->
-        <form data-step="4" novalidate hidden>
-          <h1>휴대폰 번호를 인증해 주세요</h1>
-          <p class="sub">계정을 안전하게 지키고, 암호를 잊었을 때 찾는 데 써요.</p>
-          <div class="field fl" id="fw-phone">
-            <div class="inline">
-              <div class="inp"><input id="phone" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder=" " maxlength="13" aria-describedby="h-phone m-phone"><label for="phone">휴대폰 번호</label></div>
-              <button type="button" class="btn btn-line" id="sendSms">인증번호 받기</button>
-            </div>
-            <p class="hint" id="h-phone">예: 010-1234-5678</p>
-            <p class="msg" id="m-phone" aria-live="polite"></p>
-          </div>
-          <div id="smsBox" hidden>
-            <p class="smslabel" id="smsLabel">문자로 받은 6자리 인증번호</p>
-            <div class="code" id="smsCode" role="group" aria-labelledby="smsLabel">
-              <input inputmode="numeric" maxlength="1" aria-label="인증번호 1번째 자리"><input inputmode="numeric" maxlength="1" aria-label="인증번호 2번째 자리"><input inputmode="numeric" maxlength="1" aria-label="인증번호 3번째 자리"><input inputmode="numeric" maxlength="1" aria-label="인증번호 4번째 자리"><input inputmode="numeric" maxlength="1" aria-label="인증번호 5번째 자리"><input inputmode="numeric" maxlength="1" aria-label="인증번호 6번째 자리">
-            </div>
-            <p class="group-err" id="smsErr" role="alert"></p>
-            <div class="timer"><span>남은 시간 <b id="smsTimer">03:00</b></span><button type="button" class="linkbtn" id="smsResend">인증번호 다시 받기</button></div>
-            <div class="demo">프로토타입 안내: 인증번호는 <b>123456</b>이에요. 5번 틀리면 잠겨요.</div>
-          </div>
-          <p class="verified" id="smsOk" hidden role="status"><svg><use href="#i-check"/></svg>휴대폰 번호를 인증했어요</p>
-          <div class="actions"><button class="btn btn-line" type="button" data-prev>이전</button><button class="btn btn-primary" type="submit">다음</button></div>
-        </form>
 
-        <!-- step 5: email -->
-        <form data-step="5" novalidate hidden>
+        <form data-step="4" novalidate hidden>
           <h1>이메일로 보낸 6자리 코드를 입력하세요</h1>
           <p class="sub">메일이 안 보이면 스팸함도 확인해 주세요.</p>
           <div class="mailbox"><b id="mailTo">-</b><button type="button" class="linkbtn" id="editMail">이메일 수정</button></div>
@@ -628,7 +597,6 @@ main>section:not(.home){background:var(--bg);min-height:calc(100vh - var(--gnb-h
         <p class="sub" style="text-align:center">이제 HJ전자 스토어와 서비스를 하나의 계정으로 쓸 수 있어요.</p>
         <div class="summary">
           <div><span>계정 이메일</span><b id="sumMail">-</b></div>
-          <div><span>휴대폰</span><b id="sumPhone">-</b></div>
           <div><span>소식 받기</span><b id="sumMkt">-</b></div>
         </div>
         <h2 class="todo-h">계정을 더 안전하게 쓰려면</h2>
@@ -660,13 +628,13 @@ main>section:not(.home){background:var(--bg);min-height:calc(100vh - var(--gnb-h
 (function(){
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const ICON={ok:'<svg><use href="#i-check"/></svg>',err:'<svg><use href="#i-alert"/></svg>'};
-const S={screen:'home',step:1,user:null,touched:{},last:null,eRes:{},mailSentTo:null,todo:{},phoneOk:false,smsSent:false};
+const S={screen:'home',step:1,user:null,touched:{},last:null,eRes:{},mailSentTo:null,todo:{}};
 const DEMO_CODE='123456';
 const ACCTS={'hj@hj.com':{name:'김현주',pw:'Hj12345!'}}; // in-memory only; passwords are never written to storage
 const SCREENS=['home','login','signup','done','reset'];
 const STORE='hj-signup-draft';
-const DRAFT_IDS=['lname','fname','country','birth','email','phone'];
-const FIELD_LEFT=['약 2분 남음','약 1분 30초 남음','약 1분 남음','약 40초 남음','거의 다 왔어요'];
+const DRAFT_IDS=['lname','fname','country','birth','email'];
+const FIELD_LEFT=['약 1분 30초 남음','약 1분 남음','약 40초 남음','거의 다 왔어요'];
 
 /* ---------- UX notes ---------- */
 const NOTES={
@@ -681,7 +649,7 @@ const NOTES={
   {p:'오류 복구 · 닐슨 #9',t:'미가입 이메일이면 그 자리에서 가입 제안, 5회 실패 시 재설정 안내',b:'—',a:'입력한 이메일을 가입 폼에 그대로 이어 주고, 틀린 암호는 남은 횟수와 함께 알려 줌'}]},
  s1:{label:'03 가입 1단계',items:[
   {p:'일관성 · 닐슨 #4 / 사용자 통제 · #3',t:'스토어 헤더 유지 + "쇼핑 계속하기"',b:'다른 사이트(account)로 넘어가고 돌아갈 길이 없음',a:'같은 사이트 안에서 진행, 언제든 쇼핑으로 복귀'},
-  {p:'점진적 공개 · 목표 기울기 효과',t:'5단계로 나누고 진행 막대 + 남은 시간',b:'긴 단일 폼, 끝이 어디인지 모름',a:'한 화면에 2~3개 입력만, 진행 상황이 보임'},
+  {p:'점진적 공개 · 목표 기울기 효과',t:'4단계로 나누고 진행 막대 + 남은 시간',b:'긴 단일 폼, 끝이 어디인지 모름',a:'한 화면에 2~3개 입력만, 진행 상황이 보임'},
   {p:'효율성 · 닐슨 #7',t:'성/이름 분리, 생년월일 한 칸 숫자 입력',b:'연/월/일 드롭다운 3개, 연도는 긴 스크롤',a:'19950312만 쳐도 1995.03.12로 자동 변환'},
   {p:'인식 > 기억 · 닐슨 #6',t:'떠 있는 라벨(플로팅 라벨)로 입력 중에도 칸 이름 유지',b:'플레이스홀더가 라벨 역할, 이유는 ? 아이콘 안',a:'입력하면 라벨이 작아져 위로 올라가고, 예시와 수집 이유는 칸 아래에 항상 보임'},
   {p:'사용자 통제 · 닐슨 #3',t:'새로고침·뒤로 가기에도 입력 유지',b:'—',a:'주소가 단계별로 바뀌어 뒤로 가기가 이전 단계로 가고, 입력값은 탭을 닫기 전까지 보존 (암호는 저장 안 함)'}]},
@@ -697,17 +665,14 @@ const NOTES={
   {p:'점진적 공개',t:'약관 상세는 "보기"로 펼치기',b:'긴 설명이 모두 펼쳐져 읽기 피로',a:'필요한 사람만 열어 봄'},
   {p:'오류 예방',t:'필수 진행 수(0/3) 표시, 빠진 항목만 빨갛게',b:'누락은 제출 후에야 알 수 있음',a:'어느 항목이 빠졌는지 정확히 보임'}]},
  s4:{label:'06 가입 4단계',items:[
-  {p:'애플 가입 흐름과 일치',t:'휴대폰 번호 인증 단계 추가',b:'—',a:'계정 보호와 암호 분실 시 복구에 쓰는 번호를 가입 중에 확인'},
-  {p:'효율성 · 닐슨 #7',t:'010-1234-5678 형식 자동 변환, 6자리 입력 즉시 확인',b:'—',a:'하이픈을 안 쳐도 되고, 마지막 자리를 치면 버튼 없이 바로 인증'},
-  {p:'오류 예방 · 오류 복구',t:'시도 5회 제한, 재전송 30초 간격·최대 3회',b:'—',a:'틀린 코드는 남은 횟수와 함께 알려 주고, 잠기면 새 코드를 받아 이어서 진행'}]},
- s5:{label:'07 가입 5단계',items:[
+  {p:'오류 예방 · 오류 복구',t:'시도 5회 제한, 재전송 30초 간격·최대 3회',b:'—',a:'틀린 코드는 남은 횟수와 함께 알려 주고, 잠기면 새 코드를 받아 이어서 진행'},
   {p:'효율성',t:'6칸 코드 입력, 자동 다음 칸 이동, 붙여넣기 지원, 자동 확인',b:'—',a:'메일에서 복사한 코드를 한 번에 붙여 넣으면 바로 가입 완료'},
   {p:'사용자 통제 · 오류 복구',t:'"이메일 수정"과 재전송 타이머',b:'—',a:'이메일을 잘못 쓴 경우 2단계로 바로 돌아가고, 바꾼 이메일로 새 코드를 보냄'}]},
- done:{label:'08 가입 완료',items:[
+ done:{label:'07 가입 완료',items:[
   {p:'사용자 통제 · 닐슨 #3',t:'"보던 화면으로 돌아가기"',b:'가입 후 스토어로 돌아오는 안내 없음',a:'원래 하던 쇼핑으로 바로 복귀'},
-  {p:'시스템 상태 가시성',t:'헤더에 "○○님" 표시, 가입 내역 요약',b:'—',a:'로그인 상태와 인증한 이메일·휴대폰, 선택한 설정을 바로 확인'},
+  {p:'시스템 상태 가시성',t:'헤더에 "○○님" 표시, 가입 내역 요약',b:'—',a:'로그인 상태와 인증한 이메일, 선택한 설정을 바로 확인'},
   {p:'점진적 공개',t:'다음에 하면 좋은 일 3가지',b:'—',a:'패스키 만들기, 2단계 인증, 배송지 등록을 한 번에 안내하되 건너뛸 수 있음'}]},
- reset:{label:'09 암호 재설정',items:[
+ reset:{label:'08 암호 재설정',items:[
   {p:'보안 · 계정 존재 노출 방지',t:'"가입한 계정이 있다면 링크를 보냈어요"',b:'—',a:'가입 여부를 알려 주지 않아 이메일 수집 공격을 막음'},
   {p:'오류 복구 · 닐슨 #9',t:'링크 다시 보내기, 로그인으로 돌아가기',b:'—',a:'메일이 안 와도 막히지 않고 다음 행동이 보임'}]}
 };
@@ -727,11 +692,10 @@ function fillDemoUntil(n){ // jump helper: fill earlier steps with sample data s
   if(n>1){set('lname','김');set('fname','하준');set('birth','1995.03.12');}
   if(n>2){set('email','hajun@example.com');if(!$('#pw').value){$('#pw').value='nova2026!';$('#pw2').value='nova2026!';pwUpdate();}}
   if(n>3){['ag1','ag2','ag3'].forEach(id=>$('#'+id).checked=true);syncAgree();}
-  if(n>4){set('phone','010-1234-5678');S.phoneOk=true;}
   save();
 }
 function demoDone(){
-  if(!S.last)S.last={name:'김하준',email:'hajun@example.com',phone:'010-****-5678',mkt:'신제품·이벤트'};
+  if(!S.last)S.last={name:'김하준',email:'hajun@example.com',mkt:'신제품·이벤트'};
   if(!S.user){S.user=S.last.name;$('#acctLbl').textContent=S.user+'님';}
   fillDone();
 }
@@ -744,10 +708,10 @@ function readHash(){
   const m=location.hash.match(/^#\/(\w+)(?:\/(\d))?/);let s=m&&SCREENS.includes(m[1])?m[1]:'home';
   if(s==='done'&&!(S.user&&S.last))s='home';
   S.screen=s;
-  if(s==='signup'){const want=m&&m[2]?+m[2]:S.step;S.step=reach(Math.min(Math.max(want,1),5),true);}
+  if(s==='signup'){const want=m&&m[2]?+m[2]:S.step;S.step=reach(Math.min(Math.max(want,1),4),true);}
 }
 function save(){try{
-  const d={user:S.user,phoneOk:S.phoneOk,v:{},ag:{}};
+  const d={user:S.user,v:{},ag:{}};
   DRAFT_IDS.forEach(id=>d.v[id]=$('#'+id).value);
   ['ag1','ag2','ag3','ag4','ag5'].forEach(id=>d.ag[id]=$('#'+id).checked);
   sessionStorage.setItem(STORE,JSON.stringify(d));}catch(e){}}
@@ -755,7 +719,6 @@ function load(){try{
   const d=JSON.parse(sessionStorage.getItem(STORE)||'null');if(!d)return;
   DRAFT_IDS.forEach(id=>{if(d.v&&d.v[id]!=null)$('#'+id).value=d.v[id]});
   Object.keys(d.ag||{}).forEach(id=>$('#'+id).checked=!!d.ag[id]);
-  S.phoneOk=!!d.phoneOk&&!!d.v.phone;
   if(d.user){S.user=d.user;$('#acctLbl').textContent=d.user+'님';}
   syncAgree();}catch(e){}}
 document.addEventListener('input',e=>{if(e.target.closest('.card'))save()});
@@ -765,15 +728,14 @@ document.addEventListener('change',e=>{if(e.target.closest('.card'))save()});
 const OKS=[null,
   ()=>!V.lname($('#lname').value)&&!V.fname($('#fname').value)&&!V.birth($('#birth').value),
   ()=>!V.email($('#email').value)&&pwOk()&&$('#pw').value===$('#pw2').value&&!!$('#pw2').value,
-  ()=>req.every(id=>$('#'+id).checked),
-  ()=>S.phoneOk];
+  ()=>req.every(id=>$('#'+id).checked)];
 function reach(n,notify){let k=1;while(k<n&&OKS[k]())k++;
   if(notify&&k<n&&k===2&&OKS[1]()&&!$('#pw').value)toast('보안을 위해 암호는 다시 입력해 주세요');
   return k;}
 
 function focusHeading(){const h=$$('main h1').find(e=>e.offsetParent);if(!h||S.screen==='home')return;
   h.setAttribute('tabindex','-1');h.focus({preventScroll:true});
-  const n=S.screen==='signup'?S.step+' / 5단계. ':'';$('#live').textContent=n+h.textContent;}
+  const n=S.screen==='signup'?S.step+' / 4단계. ':'';$('#live').textContent=n+h.textContent;}
 function closePops(){$('#acctPop').hidden=true;$('#cartPop').hidden=true;$('#acctBtn').setAttribute('aria-expanded','false')}
 function render(focus){
   closePops();
@@ -782,13 +744,12 @@ function render(focus){
     const n=S.step;
     $$('form[data-step]').forEach(f=>f.hidden=+f.dataset.step!==n);
     $$('#stepList li').forEach((li,i)=>{li.className=i+1<n?'done':i+1===n?'now':'';});
-    $('#stepCount').textContent=n+' / 5 · '+FIELD_LEFT[n-1];
-    if(n===4){$('#smsOk').hidden=!S.phoneOk;$('#smsBox').hidden=!S.smsSent||S.phoneOk;$('#sendSms').hidden=S.smsSent||S.phoneOk;}
-    if(n===5){const em=$('#email').value.trim();$('#mailTo').textContent=em;
+    $('#stepCount').textContent=n+' / 4 · '+FIELD_LEFT[n-1];
+    if(n===4){const em=$('#email').value.trim();$('#mailTo').textContent=em;
       if(S.mailSentTo!==em){S.mailSentTo=em;vEmail.reset();vEmail.send();}}
   }
   renderNotes();window.scrollTo(0,0);
-  if(focus){if(S.screen==='signup'&&S.step===5&&!vEmail.ok){setTimeout(()=>vEmail.otp.focus(),50);$('#live').textContent='5 / 5단계. '+$('form[data-step="5"] h1').textContent;}else focusHeading();}
+  if(focus){if(S.screen==='signup'&&S.step===4&&!vEmail.ok){setTimeout(()=>vEmail.otp.focus(),50);$('#live').textContent='4 / 4단계. '+$('form[data-step="4"] h1').textContent;}else focusHeading();}
 }
 function go(screen){
   S.screen=screen;
@@ -844,7 +805,6 @@ const V={
     if(age<0)return '미래 날짜는 입력할 수 없어요';
     if(age<14)return '만 14세 이상만 가입할 수 있어요';return null;},
   email:v=>!v.trim()?'이메일을 입력해 주세요':!EMAIL_RE.test(v.trim())?'이메일 형식을 확인해 주세요. 예: name@example.com':null,
-  phone:v=>/^01[016789]\d{7,8}$/.test(v.replace(/\D/g,''))?null:'휴대폰 번호를 확인해 주세요. 예: 010-1234-5678',
 };
 function check(f,force){
   const v=$('#'+f).value;if(force)S.touched[f]=true;if(!S.touched[f])return true;
@@ -852,7 +812,7 @@ function check(f,force){
   if(r){setMsg(f,'err',r);return false;}
   setMsg(f,'','');return true;
 }
-['lname','fname','birth','phone'].forEach(f=>{const el=$('#'+f);
+['lname','fname','birth'].forEach(f=>{const el=$('#'+f);
   el.addEventListener('blur',()=>{if(el.value)S.touched[f]=true;check(f)});
   el.addEventListener('input',()=>{if(S.touched[f])check(f)});});
 $('#birth').addEventListener('input',e=>{const d=e.target.value.replace(/\D/g,'').slice(0,8);let o=d;
@@ -942,7 +902,7 @@ $('form[data-step="3"]').addEventListener('submit',e=>{e.preventDefault();
     $('#agErr').innerHTML=ICON.err+'<span>필수 항목 '+miss.length+'개에 아직 동의하지 않았어요.</span>';$('#'+miss[0]).focus();return;}
   setStep(4);});
 
-/* ---------- one-time codes (phone + email share this) ---------- */
+/* ---------- one-time codes (email) ---------- */
 function makeOtp(root,errEl,onFull){
   const ins=[...root.querySelectorAll('input')];
   const o={
@@ -982,50 +942,29 @@ function makeVerifier(o){
   o.resendBtn.addEventListener('click',()=>{if(v.sends>=3||v.cool>0)return;v.send();toast('새 코드를 보냈어요');v.otp.focus();});
   return v;}
 
-/* phone step */
-const vSms=makeVerifier({root:$('#smsCode'),errEl:$('#smsErr'),timerEl:$('#smsTimer'),resendBtn:$('#smsResend'),resendLabel:'인증번호 다시 받기',
-  onOk(){S.phoneOk=true;$('#smsBox').hidden=true;$('#smsOk').hidden=false;$('#m-phone').innerHTML='';save();toast('휴대폰 번호를 인증했어요');$('form[data-step="4"] .btn-primary').focus();}});
-$('#phone').addEventListener('input',e=>{
-  const d=e.target.value.replace(/\D/g,'').slice(0,11);const mid=(d.startsWith('010')||d.length===11)?4:3;let o=d;
-  if(d.length>3)o=d.slice(0,3)+'-'+d.slice(3);if(d.length>3+mid)o=d.slice(0,3)+'-'+d.slice(3,3+mid)+'-'+d.slice(3+mid);
-  e.target.value=o;
-  if(S.smsSent||S.phoneOk){S.smsSent=false;S.phoneOk=false;vSms.reset();$('#smsBox').hidden=true;$('#smsOk').hidden=true;$('#sendSms').hidden=false;}
-});
-$('#sendSms').addEventListener('click',()=>{
-  S.touched.phone=true;
-  if(!check('phone',true)){$('#phone').focus();return;}
-  const b=$('#sendSms');b.disabled=true;b.textContent='보내는 중…';
-  setTimeout(()=>{b.disabled=false;b.textContent='인증번호 받기';b.hidden=true;S.smsSent=true;
-    $('#smsBox').hidden=false;vSms.send();vSms.otp.focus();toast('인증번호를 문자로 보냈어요');},600);
-});
-$('form[data-step="4"]').addEventListener('submit',e=>{e.preventDefault();
-  if(S.phoneOk){setStep(5);return;}
-  if(!S.smsSent){S.touched.phone=true;if(check('phone',true))setMsg('phone','err','인증번호를 받아 주세요');$('#phone').focus();return;}
-  const c=vSms.otp.value();if(c.length<6)vSms.otp.error('6자리를 모두 입력해 주세요. ('+(6-c.length)+'자리 남음)');vSms.otp.focus();});
 
 /* email step */
 const vEmail=makeVerifier({root:$('#code'),errEl:$('#codeErr'),timerEl:$('#timer'),resendBtn:$('#resend'),resendLabel:'코드 다시 보내기',onOk(){finishSignup();}});
 $('#editMail').addEventListener('click',()=>{setStep(2);$('#email').focus();$('#email').select();});
-$('form[data-step="5"]').addEventListener('submit',e=>{e.preventDefault();
+$('form[data-step="4"]').addEventListener('submit',e=>{e.preventDefault();
   const c=vEmail.otp.value();
   if(c.length<6){vEmail.otp.error((6-c.length)+'자리가 더 필요해요.');vEmail.otp.focus();return;}
   vEmail.verify(c);});
 
-function maskPhone(p){return p.replace(/^(\d{3})-(\d{3,4})-(\d{4})$/,(m,a,b,c)=>a+'-'+'*'.repeat(b.length)+'-'+c)}
 function finishSignup(){
   const nm=($('#lname').value+$('#fname').value).trim()||'고객',em=$('#email').value.trim();
   ACCTS[em.toLowerCase()]={name:nm,pw:$('#pw').value};
   const mk=[$('#ag4').checked&&'신제품·이벤트',$('#ag5').checked&&'서비스 업데이트'].filter(Boolean);
-  S.last={name:nm,email:em,phone:maskPhone($('#phone').value),mkt:mk.length?mk.join(', '):'받지 않음'};
+  S.last={name:nm,email:em,mkt:mk.length?mk.join(', '):'받지 않음'};
   S.user=nm;$('#acctLbl').textContent=nm+'님';
   fillDone();resetSignup();go('done');
 }
 function resetSignup(){
   [...DRAFT_IDS,'pw','pw2'].forEach(id=>{const el=$('#'+id);if(el.tagName!=='SELECT')el.value='';});
   all.forEach(id=>$('#'+id).checked=false);syncAgree();
-  S.touched={};S.step=1;S.phoneOk=false;S.smsSent=false;S.mailSentTo=null;
-  vSms.reset();vEmail.reset();$('#sendSms').hidden=false;
-  ['lname','fname','birth','email','pw','pw2','phone'].forEach(f=>setMsg(f,'',''));pwUpdate();
+  S.touched={};S.step=1;S.mailSentTo=null;
+  vEmail.reset();
+  ['lname','fname','birth','email','pw','pw2'].forEach(f=>setMsg(f,'',''));pwUpdate();
   try{sessionStorage.removeItem(STORE)}catch(e){}
   save();
 }
@@ -1033,12 +972,12 @@ function resetSignup(){
 /* ---------- done ---------- */
 const TODOS=[
  {k:'passkey',ic:'i-key',t:'패스키 만들기',s:'얼굴·지문으로 암호 없이 안전하게 로그인해요',b:'만들기',ok:'패스키를 만들었어요'},
- {k:'2fa',ic:'i-shield',t:'2단계 인증 켜기',s:'로그인할 때 인증한 휴대폰으로 코드를 받아요',b:'켜기',ok:'2단계 인증을 켰어요'},
+ {k:'2fa',ic:'i-shield',t:'2단계 인증 켜기',s:'로그인할 때 이메일로 확인 코드를 받아요',b:'켜기',ok:'2단계 인증을 켰어요'},
  {k:'addr',ic:'i-box',t:'배송지 등록',s:'다음 주문부터 주소 입력을 건너뛰어요',b:'등록'}];
 function renderTodo(){$('#todo').innerHTML=TODOS.map(x=>`<div class="it${S.todo[x.k]?' done':''}" data-todo="${x.k}"><svg><use href="#${x.ic}"/></svg><div class="tx"><b>${x.t}</b><small>${x.s}</small></div>${S.todo[x.k]?'<span class="ok-tag">'+ICON.ok+'완료</span>':'<button type="button" class="btn btn-line btn-sm">'+x.b+'</button>'}</div>`).join('');}
 function fillDone(){const l=S.last;
   $('#doneTitle').textContent=l.name+'님, 가입을 마쳤어요';
-  $('#sumMail').textContent=l.email;$('#sumPhone').textContent=l.phone;$('#sumMkt').textContent=l.mkt;
+  $('#sumMail').textContent=l.email;$('#sumMkt').textContent=l.mkt;
   S.todo={};renderTodo();}
 $('#todo').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
   const x=TODOS.find(t=>t.k===b.closest('.it').dataset.todo);
