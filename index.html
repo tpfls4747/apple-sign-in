@@ -485,7 +485,7 @@ main>section:not(.home){background:var(--bg);min-height:calc(100vh - var(--gnb-h
         <ol id="stepList">
           <li><i></i>기본 정보</li><li><i></i>계정 정보</li><li><i></i>약관 동의</li><li><i></i>이메일 인증</li>
         </ol>
-        <div class="count" id="stepCount">1 / 4 · 약 1분 30초 남음</div>
+        <div class="count" id="stepCount">1 / 4</div>
       </div>
       <div class="card">
         <!-- step 1 -->
@@ -692,7 +692,6 @@ const ACCTS={'hj@hj.com':{name:'김현주',pw:'Hj12345!'}}; // in-memory only; p
 const SCREENS=['home','login','signup','done','reset','rejoin'];
 const STORE='hj-signup-draft';
 const DRAFT_IDS=['lname','fname','country','birth','email'];
-const FIELD_LEFT=['약 1분 30초 남음','약 1분 남음','약 40초 남음','거의 다 왔어요'];
 
 /* ---------- UX notes ---------- */
 const NOTES={
@@ -707,7 +706,7 @@ const NOTES={
   {p:'오류 복구 · 닐슨 #9',t:'미가입 이메일이면 그 자리에서 가입 제안, 5회 실패 시 재설정 안내',b:'—',a:'입력한 이메일을 가입 폼에 그대로 이어 주고, 틀린 암호는 남은 횟수와 함께 알려 줌'}]},
  s1:{label:'03 가입 1단계',items:[
   {p:'일관성 · 닐슨 #4 / 사용자 통제 · #3',t:'스토어 헤더 유지 + "쇼핑 계속하기"',b:'다른 사이트(account)로 넘어가고 돌아갈 길이 없음',a:'같은 사이트 안에서 진행, 언제든 쇼핑으로 복귀'},
-  {p:'점진적 공개 · 목표 기울기 효과',t:'4단계로 나누고 진행 막대 + 남은 시간',b:'긴 단일 폼, 끝이 어디인지 모름',a:'한 화면에 2~3개 입력만, 진행 상황이 보임'},
+  {p:'점진적 공개 · 목표 기울기 효과',t:'4단계로 나누고 진행 막대 + 단계 번호',b:'긴 단일 폼, 끝이 어디인지 모름',a:'한 화면에 2~3개 입력만, 진행 상황이 보임'},
   {p:'효율성 · 닐슨 #7',t:'성/이름 분리, 생년월일 한 칸 숫자 입력',b:'연/월/일 드롭다운 3개, 연도는 긴 스크롤',a:'19950312만 쳐도 1995.03.12로 자동 변환'},
   {p:'인식 > 기억 · 닐슨 #6',t:'떠 있는 라벨(플로팅 라벨)로 입력 중에도 칸 이름 유지',b:'플레이스홀더가 라벨 역할, 이유는 ? 아이콘 안',a:'입력하면 라벨이 작아져 위로 올라가고, 예시와 수집 이유는 칸 아래에 항상 보임'},
   {p:'사용자 통제 · 닐슨 #3',t:'새로고침·뒤로 가기에도 입력 유지',b:'—',a:'주소가 단계별로 바뀌어 뒤로 가기가 이전 단계로 가고, 입력값은 탭을 닫기 전까지 보존 (암호는 저장 안 함)'}]},
@@ -814,7 +813,7 @@ function render(focus){
     const n=S.step;
     $$('form[data-step]').forEach(f=>f.hidden=+f.dataset.step!==n);
     $$('#stepList li').forEach((li,i)=>{li.className=i+1<n?'done':i+1===n?'now':'';});
-    $('#stepCount').textContent=n+' / 4 · '+FIELD_LEFT[n-1];
+    $('#stepCount').textContent=n+' / 4';
     if(n===4){const em=$('#email').value.trim();$('#mailTo').textContent=em;
       if(S.mailSentTo!==em){S.mailSentTo=em;vEmail.reset();vEmail.send();}}
   }
