@@ -14,7 +14,7 @@
 | 위치 | 하는 일 |
 | --- | --- |
 | `public/studio.html` | 편집 화면 겸 영상 플레이어 (`?p=프로젝트이름`, 기본 `hj-signup`) |
-| `public/assets`, `public/data` | 실제 화면 캡처, 기본 AI 목소리, 배경음악, 장면 대본·길이 |
+| `public/assets`, `public/data` | 실제 화면 캡처, 기본 목소리(발표자 녹음), 배경음악, 장면 대본·길이 |
 | `server/index.js` | API 서버 (Node 20, 외부 프레임워크 없음) |
 | `server/store.js` | Supabase 연동 (REST API) — 키가 없으면 서버 디스크에 임시 저장 |
 | `server/render.js` | 헤드리스 크롬 + ffmpeg로 MP4 렌더 |
@@ -56,6 +56,6 @@ Supabase 없이 실행하면 `data/local`에 저장돼요. Supabase를 쓰려면
 
 ## 참고
 
-- 기본 AI 목소리는 오프라인 한국어 음성(sherpa-onnx, mimic3 kss)으로 만들었어요. 발표용으로는 직접 녹음을 권장해요.
+- 기본 목소리는 진현주 발표자의 녹음이에요 (잡음 제거·음량 맞춤 후 장면별로 자름). 자막은 녹음 시점에 맞춰져 있고, 대본을 고치거나 새로 녹음하면 그 장면 자막은 글자 수 비율로 다시 계산돼요.
 - 녹음 기능은 HTTPS 주소(Render 배포 주소)나 localhost에서만 마이크 권한을 받을 수 있어요.
 - 렌더는 한 번에 하나씩 처리하고, 나머지는 순서를 기다려요.
