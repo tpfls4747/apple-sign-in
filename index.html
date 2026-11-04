@@ -539,7 +539,7 @@ main>section:not(.home){background:var(--bg);min-height:calc(100vh - var(--gnb-h
             </div>
             <p class="caps" id="caps-pw" hidden>Caps Lock이 켜져 있어요</p>
             <p class="msg" id="m-pw" aria-live="polite"></p>
-            <p class="secure-note"><svg aria-hidden="true"><use href="#i-lock"/></svg>256비트 암호화로 안전하게 보호됩니다</p>
+            <p class="secure-note"><svg aria-hidden="true"><use href="#i-lock"/></svg>256비트 암호화로 안전하게 보호돼요</p>
           </div>
           <div class="field fl" id="fw-pw2">
             <div class="inp has-tog"><input id="pw2" type="password" autocomplete="new-password" placeholder=" " aria-describedby="m-pw2"><label for="pw2">암호 확인</label><button type="button" class="tog" data-tog="pw2">보기</button></div>
@@ -597,7 +597,7 @@ main>section:not(.home){background:var(--bg);min-height:calc(100vh - var(--gnb-h
           <div class="demo" id="demoNote" hidden>화면 미리보기 안내: 인증 코드는 <b>123456</b>이에요. 실제 메일은 보내지 않아요.</div>
           <div class="actions"><button class="btn btn-line" type="button" data-prev>이전</button><button class="btn btn-primary" type="submit">가입 완료</button></div>
           <div class="trust" aria-label="보안 안내"><span><svg aria-hidden="true"><use href="#i-lock"/></svg>256비트 암호화</span><span><svg aria-hidden="true"><use href="#i-shield"/></svg>개인정보 안전 보관 중</span></div>
-          <p class="trust-cap">입력하신 정보는 암호화되어 전송·저장되고, 비밀번호는 HJ전자 직원도 볼 수 없어요.</p>
+          <p class="trust-cap">입력하신 정보는 암호화되어 전송·저장되고, 암호는 HJ전자 직원도 볼 수 없어요.</p>
         </form>
       </div>
     </div>
@@ -952,9 +952,9 @@ function pwUpdate(){
 /* password confirm: checked only when focus leaves (both filled) or on submit, never while typing */
 function checkPw2(force){if(force)S.touched.pw2=true;if(!S.touched.pw2)return true;
   const a=$('#pw').value,b=$('#pw2').value;
-  if(!b){setMsg('pw2','err','비밀번호를 한 번 더 입력해 주세요');return false;}
-  if(a!==b){setMsg('pw2','err','비밀번호가 일치하지 않습니다');return false;}
-  setMsg('pw2','ok','비밀번호가 일치합니다.');return true;}
+  if(!b){setMsg('pw2','err','암호를 한 번 더 입력해 주세요');return false;}
+  if(a!==b){setMsg('pw2','err','암호가 일치하지 않아요');return false;}
+  setMsg('pw2','ok','암호가 일치해요');return true;}
 const tip=$('#pwtip');
 $('#pw').addEventListener('input',()=>{tip.hidden=false;pwUpdate();});
 $('#pw').addEventListener('focus',()=>{tip.hidden=false;pwUpdate();});
