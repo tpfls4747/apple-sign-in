@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HJ전자 발표 영상 스튜디오</title>
+<link rel="icon" href="/assets/logo-mark.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" id="font-base">
+<style>
+/* Layout: fixed 1920x1080 stage scaled to fit, player + voice/text editing panel underneath. One deliberate look (brand red on warm white). */
+:root{
+  --red:#E0262F; --red-deep:#B5161F; --red-soft:#FDECEC;
+  --ink:#1B1516; --muted:#6B5F61; --line:#EADFE0; --paper:#FFFFFF; --warm:#FBF6F5;
+  --ok:#1F7A4D; --ok-soft:#E3F3EA; --gray:#8E8486; --gray-soft:#F1EEEE;
+  --chrome:#151213; --chrome-2:#221D1E; --chrome-3:#2E2729; --chrome-ink:#EFE7E7; --chrome-muted:#A99C9E;
+  --font:"Noto Sans KR","Noto Sans CJK KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--chrome);color:var(--chrome-ink);font-family:var(--font)}
+body{margin:0;word-break:keep-all;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.player{max-width:1200px;margin:0 auto;display:grid;gap:14px}
+.viewport{position:relative;width:100%;aspect-ratio:16/9;max-width:100%;overflow:hidden;border-radius:10px;background:#000}
+.stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;overflow:hidden;background:var(--paper);color:var(--ink);font-family:var(--font);letter-spacing:-.01em}
+.scene{position:absolute;inset:0;opacity:0;visibility:hidden}
+.scene.on{visibility:visible}
+.bg-red{background:var(--red);color:#fff}.bg-white{background:var(--paper)}.bg-warm{background:var(--warm)}
+.pos{position:absolute}
+.eyebrow{font-size:28px;font-weight:700;color:var(--red);letter-spacing:.01em}
+.bg-red .eyebrow{color:rgba(255,255,255,.8)}
+.big{font-size:72px;font-weight:900;line-height:1.25;letter-spacing:-.03em;white-space:pre-line}
+.h{font-size:60px;font-weight:900;line-height:1.25;letter-spacing:-.03em;white-space:pre-line}
+.sub{font-size:28px;font-weight:500;line-height:1.6;color:var(--muted);white-space:pre-line}
+.chip{display:inline-flex;align-items:center;gap:10px;padding:10px 20px;border-radius:999px;font-size:24px;font-weight:700}
+.chip.p{background:var(--red-soft);color:var(--red-deep)}.chip.ok{background:var(--ok-soft);color:var(--ok)}.chip.g{background:var(--gray-soft);color:var(--muted)}
+.chip.solid{background:var(--red);color:#fff}
+.ico{width:1em;height:1em;flex:none}
+.cardx{background:#fff;border:1px solid var(--line);border-radius:28px;padding:34px;box-shadow:0 30px 60px -32px rgba(80,20,25,.28)}
+
+/* generic "other website" mocks: neutral gray, no brand */
+.other{background:#F6F6F6;border:1px solid #E2E2E2;border-radius:24px;padding:30px;color:#3A3A3A}
+.other .lb{font-size:18px;color:#8A8A8A;margin-bottom:8px}
+.ofield{border:2px solid #CFCFCF;border-radius:10px;height:64px;padding:0 18px;display:flex;align-items:center;background:#fff;font-size:30px;letter-spacing:5px}
+.ofield.err{border-color:#E0262F}
+.oerr{display:flex;align-items:center;gap:8px;color:#D62828;font-size:22px;font-weight:700;margin-top:12px;min-height:30px}
+.omsg{font-size:34px;font-weight:700;color:#555}
+.obtn{display:inline-flex;align-items:center;justify-content:center;height:58px;padding:0 40px;border-radius:8px;background:#9A9A9A;color:#fff;font-size:22px;font-weight:700}
+.siteby{position:absolute;top:-16px;left:28px;background:#6E6E6E;color:#fff;font-size:17px;font-weight:700;padding:6px 14px;border-radius:999px}
+
+/* problem cards (intro) */
+.pcard{position:absolute;width:520px;height:470px;border-radius:30px;padding:34px;display:flex;flex-direction:column}
+.pcard .num{font-size:22px;font-weight:900;color:var(--red);letter-spacing:.04em}
+.pcard .tt{font-size:34px;font-weight:900;line-height:1.3;margin-top:10px;white-space:pre-line}
+.pcard .art{flex:1;display:flex;align-items:center;justify-content:center;margin-top:18px}
+.pcard.before{background:#fff;border:1px solid var(--line)}
+.flipok{position:absolute;inset:0;border-radius:30px;background:#fff;border:3px solid var(--ok);padding:34px;display:flex;flex-direction:column;justify-content:center;gap:16px}
+.flipok .ck{width:84px;height:84px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center}
+.flipok .ck svg{width:46px;height:46px}
+.flipok .tt{color:var(--ink)}
+
+/* browser window with real screenshots */
+.win{position:absolute;border-radius:22px;background:#fff;box-shadow:0 40px 80px -30px rgba(60,10,15,.35),0 0 0 1px rgba(0,0,0,.06);overflow:hidden}
+.wbar{height:46px;background:#F2EFEF;display:flex;align-items:center;gap:9px;padding:0 18px;border-bottom:1px solid #E5DFE0}
+.wbar i{width:13px;height:13px;border-radius:50%;background:#D9D2D3;display:block}
+.wbar .url{margin-left:18px;flex:1;height:28px;border-radius:8px;background:#fff;display:flex;align-items:center;padding:0 14px;font-size:15px;color:var(--muted)}
+.wvp{position:relative;overflow:hidden}
+.cam{position:absolute;left:0;top:0;width:1440px;height:900px;transform-origin:0 0}
+.cam img{position:absolute;inset:0;width:1440px;height:900px;display:block}
+.hl{position:absolute;border:4px solid var(--red);border-radius:14px;box-shadow:0 0 0 9999px rgba(20,10,12,.0);opacity:0;pointer-events:none}
+.hl.ok{border-color:var(--ok)}
+.cursor{position:absolute;width:34px;height:34px;opacity:0;pointer-events:none;filter:drop-shadow(0 3px 4px rgba(0,0,0,.35))}
+.ripple{position:absolute;width:60px;height:60px;border-radius:50%;border:4px solid var(--red);opacity:0;pointer-events:none}
+.bubble{position:absolute;padding:14px 22px;border-radius:16px;background:var(--ink);color:#fff;font-size:26px;font-weight:700;white-space:nowrap;opacity:0;box-shadow:0 14px 30px -12px rgba(0,0,0,.45)}
+.bubble.ok{background:var(--ok)}.bubble.red{background:var(--red)}
+.bubble svg{width:24px;height:24px;vertical-align:-4px;margin-right:8px}
+
+.backend{display:grid;gap:16px;margin-top:34px}
+.backend .hd{display:flex;align-items:center;gap:12px;font-size:22px;font-weight:700;color:var(--muted)}
+.bitem{display:flex;align-items:center;gap:16px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px 22px;font-size:26px;font-weight:700}
+.bitem .ic{width:48px;height:48px;border-radius:12px;background:var(--ok-soft);color:var(--ok);display:grid;place-items:center;flex:none}
+.bitem .ic svg{width:26px;height:26px}
+.bitem small{display:block;font-size:19px;font-weight:500;color:var(--muted);margin-top:2px}
+
+.steps{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.step{display:inline-flex;align-items:center;gap:10px;padding:12px 20px;border-radius:14px;background:var(--gray-soft);font-size:24px;font-weight:700;color:#555}
+.step b{width:34px;height:34px;border-radius:50%;background:#8E8486;color:#fff;display:grid;place-items:center;font-size:18px}
+.step.hj{background:var(--red-soft);color:var(--red-deep)}.step.hj b{background:var(--red)}
+.counter{display:flex;align-items:baseline;gap:16px}
+.counter .n{font-size:120px;font-weight:900;line-height:1;color:var(--red)}
+.counter .n.old{color:#B9AEB0;text-decoration:line-through;text-decoration-thickness:8px;font-size:84px}
+
+.subs{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);max-width:1500px;padding:14px 28px;border-radius:14px;background:rgba(20,14,15,.78);color:#fff;font-size:31px;font-weight:500;line-height:1.42;text-align:center;z-index:50;white-space:pre-line}
+.subs:empty{display:none}
+.subs.off{display:none}
+
+/* player chrome */
+.bar-ui{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.cbtn{height:40px;padding:0 14px;border-radius:10px;border:1px solid #3A3234;background:var(--chrome-2);font-size:14px;display:inline-flex;align-items:center;gap:6px}
+.cbtn:hover{border-color:#6A5D60}
+.cbtn.on{background:var(--red);border-color:var(--red);color:#fff}
+.time{font-size:13px;color:var(--chrome-muted);font-variant-numeric:tabular-nums;margin-left:auto}
+.scrub{width:100%;accent-color:var(--red)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{font-size:12px;padding:5px 10px;border-radius:8px;border:1px solid #3A3234;background:transparent;color:var(--chrome-muted)}
+.chips button.cur{border-color:var(--red);color:#fff}
+.panel{background:var(--chrome-2);border:1px solid #3A3234;border-radius:12px;padding:16px;display:grid;gap:12px}
+.panel h2{font-size:15px;margin:0}
+.panel p{font-size:13px;color:var(--chrome-muted);margin:0;line-height:1.6}
+.vrows{display:grid;gap:8px}
+.vrow{display:grid;grid-template-columns:150px minmax(0,1fr) auto auto;gap:10px;align-items:center;font-size:13px;padding:8px 10px;border-radius:8px;background:var(--chrome-3)}
+.vrow .nm{font-weight:700}
+.vrow .st{color:var(--chrome-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vrow label.cbtn{height:32px;font-size:12px}
+.vrow input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
+.mix{display:flex;flex-wrap:wrap;gap:18px;align-items:center;font-size:13px;color:var(--chrome-muted)}
+.mix input[type=range]{accent-color:var(--red);width:140px}
+.editing [data-t]{outline:2px dashed rgba(255,214,0,.9);outline-offset:6px;border-radius:6px;cursor:text}
+@media (max-width:640px){.vrow{grid-template-columns:1fr auto}.vrow .st{grid-column:1/-1}}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.row h2{margin-right:auto}
+.inp{height:40px;border-radius:10px;border:1px solid #3A3234;background:var(--chrome-3);padding:0 12px;font-size:14px;color:var(--chrome-ink)}
+select.inp{padding-right:28px}
+.state{font-size:13px;color:var(--chrome-muted)}
+.state.err{color:#FF8A80}.state.ok{color:#7FD3A2}
+.cbtn.primary{background:var(--red);border-color:var(--red);color:#fff}
+.cbtn.rec{border-color:#FF6B6B;color:#FFB4B4}
+.cbtn.rec.on{background:#C62828;color:#fff;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.6}}
+.vrow{grid-template-columns:170px minmax(0,1fr) auto}
+.vrow .acts{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.vrow textarea{grid-column:1/-1;width:100%;min-height:52px;resize:vertical;border-radius:8px;border:1px solid #3A3234;background:#1A1617;color:var(--chrome-ink);font:inherit;font-size:13px;padding:8px 10px;line-height:1.5}
+.vrow .warn{grid-column:1/-1;font-size:12px;color:#F5C26B}
+a.dl{color:#fff;font-weight:700}
+body.export{padding:0;background:#000}
+body.export .player{max-width:none;gap:0}
+body.export .viewport{width:1920px;height:1080px;border-radius:0;aspect-ratio:auto}
+body.export .ui{display:none}
+</style>
+
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-logo" viewBox="0 0 48 48"><path fill="currentColor" d="M8.04 5.79C7.52 6.14 7.34 6.49 7.22 7.12C7.09 7.76 7.41 8.87 7.28 9.6C7.15 10.33 6.57 10.98 6.46 11.5C6.34 12.02 6.36 12.03 6.58 12.71C6.81 13.38 7.96 14.72 7.79 15.56C7.62 16.41 6.03 17.13 5.57 17.78C5.1 18.44 5.33 18.92 5 19.5C4.67 20.07 3.88 20.58 3.6 21.21C3.33 21.83 3.65 22.5 3.35 23.24C3.04 23.98 2.03 24.79 1.76 25.65C1.5 26.51 1.89 27.6 1.76 28.38C1.63 29.16 1.12 29.74 1 30.34C0.88 30.95 0.85 31.15 1.06 31.99C1.27 32.84 1.7 34.3 2.27 35.42C2.84 36.54 3.52 37.72 4.49 38.72C5.46 39.72 7.29 40.9 8.11 41.45C8.92 42 7.99 41.61 9.38 42.02C10.76 42.43 14.62 43.48 16.42 43.92C18.22 44.37 19.21 44.58 20.16 44.68C21.11 44.79 21.45 44.48 22.13 44.56C22.81 44.63 23.45 45.04 24.22 45.13C24.99 45.21 26.14 45.01 26.76 45.06C27.38 45.12 27.1 45.41 27.97 45.45C28.83 45.48 30.93 45.45 31.96 45.26C33 45.06 33.33 44.55 34.18 44.3C35.04 44.06 36.04 44.18 37.1 43.8C38.16 43.42 39.57 42.72 40.53 42.02C41.49 41.32 42.11 40.99 42.88 39.61C43.64 38.22 44.79 35.11 45.1 33.71C45.4 32.3 44.69 31.83 44.72 31.17C44.74 30.51 45.14 30.21 45.22 29.77C45.31 29.34 45.38 29.15 45.22 28.57C45.06 27.99 44.35 27.03 44.27 26.28C44.2 25.53 44.87 24.96 44.78 24.06C44.68 23.16 43.58 21.72 43.7 20.89C43.82 20.07 45.1 19.72 45.48 19.11C45.86 18.51 45.73 17.87 45.98 17.27C46.24 16.68 46.92 16.16 47 15.56C47.08 14.96 46.51 14.36 46.49 13.66C46.47 12.96 47.01 12.05 46.87 11.37C46.74 10.7 45.87 10.14 45.67 9.6C45.47 9.06 45.73 8.52 45.67 8.14C45.6 7.76 45.51 7.57 45.29 7.31C45.06 7.06 44.73 6.79 44.34 6.62C43.94 6.44 43.48 6.56 42.94 6.23C42.4 5.91 41.61 4.9 41.1 4.65C40.59 4.39 40.3 4.56 39.89 4.71C39.49 4.86 39.29 5.41 38.69 5.54C38.09 5.66 36.94 5.26 36.28 5.47C35.61 5.68 35.25 6.47 34.69 6.81C34.13 7.14 33.56 7.04 32.91 7.5C32.27 7.97 31.25 9.07 30.82 9.6C30.39 10.13 30.45 10.14 30.31 10.68C30.18 11.22 30.14 12.4 30 12.83C29.85 13.27 29.75 13.28 29.42 13.28C29.1 13.28 28.57 12.88 28.03 12.83C27.49 12.79 26.8 13.09 26.19 13.02C25.58 12.96 24.98 12.52 24.35 12.45C23.71 12.39 22.76 13.02 22.38 12.64C22 12.26 22.32 10.9 22.06 10.17C21.81 9.44 21.06 8.92 20.86 8.26C20.66 7.61 21.12 6.77 20.86 6.23C20.59 5.7 19.63 5.48 19.27 5.03C18.91 4.57 18.91 3.87 18.7 3.51C18.49 3.15 18.29 3.01 18 2.87C17.72 2.73 17.45 2.65 16.99 2.68C16.52 2.71 15.75 3.08 15.21 3.06C14.67 3.04 14.17 2.63 13.75 2.55C13.34 2.48 13.09 2.51 12.74 2.62C12.39 2.72 12.06 2.79 11.66 3.19C11.26 3.59 10.93 4.6 10.33 5.03C9.72 5.46 8.56 5.44 8.04 5.79Z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.1"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/><path d="M12 14.5v2.5"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v5.5c0 4.3 3 7.9 7 9.5 4-1.6 7-5.2 7-9.5V6l-7-3Z"/><path d="m9 12 2.2 2.2L15.5 10"/></symbol>
+  <symbol id="i-server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="7" rx="2"/><rect x="4" y="13" width="16" height="7" rx="2"/><path d="M8 7.5h.01M8 16.5h.01"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></symbol>
+  <symbol id="i-cursor" viewBox="0 0 24 24"><path d="M4 2.5 19 13l-6.6 1.2 3.7 7-3 1.5-3.6-7.1L4 20Z" fill="#111" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+</svg>
+
+<div class="player">
+  <div class="viewport" id="vp"><div class="stage" id="stage"></div></div>
+  <div class="ui">
+    <input class="scrub" id="scrub" type="range" min="0" max="1000" step="1" value="0" aria-label="재생 위치">
+    <div class="bar-ui">
+      <button class="cbtn" id="play">재생</button>
+      <button class="cbtn" id="prev">이전 장면</button>
+      <button class="cbtn" id="next">다음 장면</button>
+      <button class="cbtn on" id="subBtn" aria-pressed="true">자막 켜짐</button>
+      <button class="cbtn" id="edit" aria-pressed="false">텍스트 편집</button>
+      <button class="cbtn" id="reset">원래 문구로</button>
+      <span class="time" id="time">0:00 / 0:00</span>
+    </div>
+    <div class="chips" id="chips"></div>
+    <div class="panel">
+      <div class="row"><h2>프로젝트 저장 · 영상 만들기</h2>
+        <input class="inp" id="editKey" type="password" placeholder="편집 비밀번호" autocomplete="current-password" style="width:150px">
+        <button class="cbtn" id="saveBtn">저장</button>
+        <button class="cbtn primary" id="renderBtn">MP4 만들기</button></div>
+      <p><span class="state" id="saveState">불러오는 중…</span> <span class="state" id="renderState"></span></p>
+    </div>
+    <div class="panel">
+      <h2>폰트</h2>
+      <div class="mix">
+        <select class="inp" id="fontSel" aria-label="영상 폰트">
+          <option value="Noto Sans KR">본고딕 (Noto Sans KR)</option>
+          <option value="Pretendard">프리텐다드 (Pretendard)</option>
+          <option value="IBM Plex Sans KR">IBM Plex Sans KR</option>
+          <option value="Nanum Gothic">나눔고딕</option>
+          <option value="Gowun Dodum">고운돋움</option>
+          <option value="Do Hyeon">도현</option>
+          <option value="__custom">내가 올린 폰트</option>
+        </select>
+        <label class="cbtn">내 폰트 올리기 (woff2·ttf·otf)<input type="file" id="fontFile" accept=".woff2,.woff,.ttf,.otf" style="position:absolute;width:1px;height:1px;opacity:0"></label>
+        <span class="state" id="fontState"></span>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>목소리와 자막</h2>
+      <p>장면마다 [녹음]으로 바로 녹음하거나 [파일 넣기]로 내 녹음·다른 AI 음성(mp3, m4a, wav, webm)을 넣어요. 녹음이 장면보다 길면 그 장면이 자동으로 늘어나요. 아래 칸은 자막(대본)이에요.</p>
+      <div class="mix">
+        <label>목소리 <input type="range" id="volV" min="0" max="150" step="1" value="100"></label>
+        <label>배경음악 <input type="range" id="volM" min="0" max="100" step="1" value="60"></label>
+        <button class="cbtn" id="resetVoice">모두 기본 AI 음성으로</button>
+      </div>
+      <div class="vrows" id="vrows"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(async function(){
+const Q=new URLSearchParams(location.search);
+const SLUG=(Q.get('p')||'hj-signup').toLowerCase();
+const EXPORT=Q.get('export')==='1';
+const [BASE,BOX,PROJ]=await Promise.all([
+  fetch('/data/script.json').then(r=>r.json()),          // 장면별 기본 대본·음성 길이·장면 길이
+  fetch('/data/boxes.json').then(r=>r.json()),           // 실제 화면 속 요소 위치(1440x900 기준)
+  fetch('/api/projects/'+SLUG).then(r=>r.ok?r.json():{}).catch(()=>({}))]);
+const DATA=BASE.map(s=>Object.assign({},s));
+const IMG=new Proxy({},{get:(_,n)=>`/assets/shots/${String(n)}.jpg`});
+const AUD={music:'/assets/audio/music.m4a'};DATA.forEach((s,i)=>AUD['v'+(i+1)]=`/assets/voice/${String(i+1).padStart(2,'0')}_${s.id}.m4a`);
+const MASCOT='/assets/mascot.png';
+const LEAD=0.6,TAIL=0.9;          // 목소리 앞뒤 여백(초)
+/* 프로젝트 = 기본값 위에 덮어쓰는 편집 내용 (Supabase에 저장) */
+let P=Object.assign({texts:{},says:{},voices:{},font:'Noto Sans KR',fontUrl:null,musicVolume:.6,voiceVolume:1,subtitles:true},(PROJ&&PROJ.data)||{});
+function applyOverrides(){DATA.forEach((s,i)=>{const b=BASE[i],v=P.voices[s.id];s.say=P.says[s.id]||b.say;s.vdur=v?v.dur:b.vdur;
+  s.dur=Math.max(b.dur,Math.round((LEAD+s.vdur+TAIL)*10)/10);});}
+applyOverrides();
+
+/* ===== 편집 가능한 화면 문구 ===== */
+const DEFAULT_TXT={
+  intro_eb:'타 웹사이트 회원가입, 이런 점이 불편했어요',
+  intro_h:'사용자를 멈칫하게 만드는 문제 3가지',
+  c1:'입력 중에 미리 뜨는\n빨간 경고',c2:'탈퇴 회원을\n차갑게 막는 안내',c3:'작고 찾기 힘든\n가입 버튼',
+  f1:'입력을 마친 뒤\n한 번만 확인',f2:'환영 인사와\n탈퇴일 안내',f3:'찾기 쉬운\n같은 크기 버튼',
+  fix_eb:'HJ전자의 보완',fix_h:'세 가지를 보완해, 더 간편하고 안심되는 회원가입으로',fix_go:'실제 화면으로 보여드릴게요',
+  p1_tag:'문제 1 · 비밀번호 확인',p1a_h:'아직 치는 중인데\n벌써 \'틀렸다\'고요?',p1a_s:'한 글자마다 빨간 경고가 먼저 떠서\n사용자는 잘못한 게 없는데도 멈칫합니다.',
+  p1b_tag:'HJ전자의 개선',p1b_h:'입력을 마친 뒤,\n한 번만 확인합니다',p1b_s:'입력하는 동안은 조용히 기다리고\n칸을 벗어나거나 \'다음\'을 누를 때 알려 줍니다.',p1b_pr:'오류 예방 · 피드백 시점 조절',
+  p1c_h:'보이지 않는 보안도\n보이게',p1c_hd:'실제 서비스 적용 · 개발팀, 보안팀 협업',
+  b1:'전송 구간 암호화',b1s:'HTTPS(TLS)로 주고받는 모든 정보 보호',
+  b2:'비밀번호 암호화 저장',b2s:'단방향 해시로 저장해 직원도 볼 수 없음',
+  b3:'서버에서 한 번 더 확인',b3s:'화면 검사와 별도로 서버가 일치 여부 재검증',
+  p2_tag:'문제 2 · 재가입',p2a_h:'돌아온 사용자에게\n\'탈퇴한 회원입니다\'?',p2a_s:'이유도, 언제 다시 가입할 수 있는지도\n알려 주지 않는 차가운 안내였습니다.',
+  p2b_tag:'HJ전자의 개선',p2b_h:'거절 대신,\n환영 인사로',p2b_s:'탈퇴한 기록과 날짜를 부드럽게 알려 주고\n다시 가입하는 길을 함께 안내합니다.',p2b_pr:'감정적 디자인 · 시스템 상태의 가시성',
+  p3_tag:'문제 3 · 가입 버튼',p3a_h:'가입 버튼,\n어디에 있나요?',p3a_s:'버튼이 작고 장바구니 안에 숨어 있어\n가입하러 가는 길이 길었습니다.',
+  p3b_tag:'HJ전자의 개선',p3b_h:'바로 보이고,\n크기는 같게',p3b_s:'오른쪽 위에 로그인 / 회원가입을 두고\n로그인과 회원가입 버튼 크기를 맞췄습니다.',p3b_pr:'일관성 · 피츠의 법칙 · 발견 가능성',
+  end_1:'이러한 문제점을 보완하여\n유저가 보다 간편하고 더 나은 경험을 할 수 있도록\n여러분의 피드백을 기다립니다.',
+  end_2:'시청해 주셔서 감사합니다.',end_by:'발표자 진현주'
+};
+let TXT=Object.assign({},DEFAULT_TXT,P.texts);
+
+const ic=(id,cls='ico')=>`<svg class="${cls}" aria-hidden="true"><use href="#i-${id}"/></svg>`;
+const T=k=>`<span data-t="${k}"></span>`;
+const D={};DATA.forEach(s=>D[s.id]=s);
+const V=(id,f)=>LEAD+f*D[id].vdur;          // 대본 진행률 f(0~1)에 맞는 시각
+
+/* ===== shared pieces ===== */
+function leftCol(key,tagKey,hKey,sKey,prKey,tagCls='p'){return `
+  <div class="pos" style="left:110px;top:200px;width:560px" id="${key}_L">
+    <div class="chip ${tagCls}" data-t="${tagKey}" id="${key}_tg" style="font-size:22px"></div>
+    <div class="h" data-t="${hKey}" id="${key}_h" style="margin-top:26px"></div>
+    <div class="sub" data-t="${sKey}" id="${key}_s" style="margin-top:26px;font-size:26px"></div>
+    ${prKey?`<div style="margin-top:34px" id="${key}_pw"><span class="chip ok">${ic('check')}<span data-t="${prKey}"></span></span></div>`:''}
+  </div>`;}
+function leftDraw(key,t,$){up($(key+'_tg'),k(t,.05,.45));up($(key+'_h'),k(t,.2,.7));up($(key+'_s'),k(t,.5,.7));if($(key+'_pw'))up($(key+'_pw'),k(t,.9,.6),16);}
+const WX=740,WY=110,WW=1080,WH=WW*900/1440;     // browser window
+function win(key,imgs,url){return `
+  <div class="win" id="${key}_win" style="left:${WX}px;top:${WY}px;width:${WW}px">
+    <div class="wbar"><i></i><i></i><i></i><div class="url">hj-electronics.store/${url}</div></div>
+    <div class="wvp" style="width:${WW}px;height:${WH}px"><div class="cam" id="${key}_cam">
+      ${imgs.map(n=>`<img alt="" src="${IMG[n]}" id="${key}_im_${n}">`).join('')}
+      <div class="hl" id="${key}_hl"></div><div class="hl ok" id="${key}_hl2"></div>
+      <div class="ripple" id="${key}_rp"></div>
+      <svg class="cursor" id="${key}_cur" aria-hidden="true"><use href="#i-cursor"/></svg>
+    </div></div></div>`;}
+/* camera: focus on a box (page coords) with zoom z; z=1 = whole page */
+function camAt(b,z){const s=WW/1440*z;let cx=b?b.x+b.width/2:720,cy=b?b.y+b.height/2:450;
+  let tx=WW/2-cx*s,ty=WH/2-cy*s;tx=Math.min(0,Math.max(WW-1440*s,tx));ty=Math.min(0,Math.max(WH-900*s,ty));return {s,tx,ty};}
+function camMix(a,b,p){return {s:a.s+(b.s-a.s)*p,tx:a.tx+(b.tx-a.tx)*p,ty:a.ty+(b.ty-a.ty)*p};}
+function camSet(el,c){el.style.transform=`translate(${c.tx}px,${c.ty}px) scale(${c.s})`;}
+function camPath(el,t,keys){/* keys: [[time,box,zoom],...] */
+  let c=camAt(keys[0][1],keys[0][2]);
+  for(let i=1;i<keys.length;i++){const p=k(t,keys[i][0],1.1);if(p<=0)break;c=camMix(c,camAt(keys[i][1],keys[i][2]),p);}camSet(el,c);}
+function hlAt(el,b,p,pad=10){if(!b){el.style.opacity=0;return;}el.style.left=(b.x-pad)+'px';el.style.top=(b.y-pad)+'px';el.style.width=(b.width+pad*2)+'px';el.style.height=(b.height+pad*2)+'px';
+  el.style.opacity=p;el.style.transform=`scale(${1.08-.08*p})`;}
+function imgShow(key,name,p){const el=document.querySelector(`#${key}_im_${name}`);if(el)el.style.opacity=p;}
+function cursorAt(key,x,y,show){const c=document.getElementById(key+'_cur');c.style.left=x+'px';c.style.top=y+'px';c.style.opacity=show;}
+function ripple(key,x,y,t0,t){const r=document.getElementById(key+'_rp');const p=(t-t0)/.6;if(p<0||p>1){r.style.opacity=0;return;}
+  r.style.left=(x-30)+'px';r.style.top=(y-30)+'px';r.style.opacity=1-p;r.style.transform=`scale(${.4+p*1.2})`;}
+function bubble(el,p){if(!el)return;el.style.opacity=p;el.style.transform=`translateY(${(1-p)*14}px) scale(${.96+.04*p})`;}
+const lerp=(a,b,p)=>a+(b-a)*p;
+const BX=BOX.boxes;
+
+/* ===== 장면 ===== */
+const SCENES=[
+{id:'intro',bg:'bg-warm',html:`
+  <div class="pos" style="left:110px;top:80px"><div class="eyebrow" data-t="intro_eb" id="i_eb"></div>
+    <div class="big" data-t="intro_h" id="i_h" style="margin-top:14px;font-size:64px"></div></div>
+  ${[1,2,3].map(i=>`<div class="pcard before" id="i_c${i}" style="left:${110+(i-1)*580}px;top:340px">
+    <div class="num">0${i}</div><div class="tt" data-t="c${i}"></div><div class="art" id="i_a${i}">${introArt(i)}</div></div>`).join('')}`,
+ draw(t,$){up($('i_eb'),k(t,.1,.5));up($('i_h'),k(t,.25,.7));
+  const at=[V('intro',.40),V('intro',.58),V('intro',.76)];
+  [1,2,3].forEach(i=>up($('i_c'+i),k(t,at[i-1]-.4,.6),40));
+  const n=Math.max(0,Math.min(6,Math.floor((t-at[0])/0.35)));$('i_d1').textContent='•'.repeat(n);
+  const sk=n>0?(t-at[0])-(n-1)*.35:9;$('i_e1').style.opacity=n>0?1:0;$('i_e1').style.transform=`translateX(${n>0&&sk<.22?Math.sin(sk*60)*6*(1-sk/.22):0}px)`;
+  $('i_f1').className='ofield'+(n>0?' err':'');
+  const st=k(t,at[1]+.3,.35);$('i_s2').style.transform=`scale(${1.25-.25*st}) rotate(-8deg)`;$('i_s2').style.opacity=st;
+  /* card 3: the cursor hunts around the header, then finds the tiny "계정 생성" link */
+  const box=$('i_box'),lk=$('i_lk');
+  if(box&&lk){const bw=box.offsetWidth;const lx=lk.offsetLeft+lk.offsetParent.offsetLeft,ly=lk.offsetTop+lk.offsetParent.offsetTop;
+    let L=lk.offsetLeft,Tp=lk.offsetTop,el=lk.offsetParent;while(el&&el!==box){L+=el.offsetLeft;Tp+=el.offsetTop;el=el.offsetParent;}
+    const lw=lk.offsetWidth,lh=lk.offsetHeight,tx=L+lw*.55,ty=Tp+lh*.6;
+    const pts=[[bw*.6,150],[bw-36,24],[bw-66,24],[96,24],[150,24],[bw*.45,82],[bw*.75,110],[tx,ty]];
+    const t0=at[2]+.1,seg=.42;let x=pts[0][0],y=pts[0][1];
+    for(let i=1;i<pts.length;i++){const p=k(t,t0+(i-1)*seg,seg*.9);x=lerp(x,pts[i][0],p);y=lerp(y,pts[i][1],p);}
+    const c=$('i_cur');c.style.left=x+'px';c.style.top=y+'px';c.style.opacity=k(t,t0-.2,.25);
+    const tFound=t0+(pts.length-1)*seg;
+    const q=$('i_q');const qs=k(t,t0+.6,.3)*(1-k(t,tFound-.5,.3));q.style.opacity=qs;q.style.left=(x+26)+'px';q.style.top=(y-30)+'px';
+    const m=$('i_mg'),pad=14,mp=k(t,tFound+.1,.5);m.style.left=(L-pad)+'px';m.style.top=(Tp-pad*.7)+'px';m.style.width=(lw+pad*2)+'px';m.style.height=(lh+pad*1.4)+'px';
+    m.style.opacity=mp;m.style.transform=`scale(${1.35-.35*mp})`;}
+ }},
+{id:'fix',bg:'bg-white',html:`
+  <div class="pos" style="left:110px;top:80px;display:flex;align-items:center;gap:18px" id="x_logo">
+    <svg style="width:64px;height:64px;color:var(--red)" aria-hidden="true"><use href="#i-logo"/></svg>
+    <div class="eyebrow" data-t="fix_eb" style="font-size:30px"></div></div>
+  <div class="big" data-t="fix_h" id="x_h" style="position:absolute;left:110px;top:170px;width:1700px;font-size:58px"></div>
+  ${[1,2,3].map(i=>`<div class="pcard before" id="x_c${i}" style="left:${110+(i-1)*580}px;top:340px">
+    <div class="num">0${i}</div><div class="tt" data-t="c${i}" style="color:#A3979A;text-decoration:line-through"></div>
+    <div class="flipok" id="x_o${i}"><div class="ck">${ic('check')}</div><div class="num" style="color:var(--ok)">0${i} · 보완</div><div class="tt" data-t="f${i}"></div></div></div>`).join('')}
+  <div class="pos" id="x_go" style="left:110px;top:870px;display:flex;align-items:center;gap:14px;font-size:30px;font-weight:700;color:var(--red)">${T('fix_go')}${ic('arrow')}</div>`,
+ draw(t,$){up($('x_logo'),k(t,.05,.5));up($('x_h'),k(t,.2,.7));
+  [1,2,3].forEach(i=>{up($('x_c'+i),k(t,.4+i*.12,.5),20);const p=k(t,V('fix',.25)+i*.45,.5);const o=$('x_o'+i);o.style.opacity=p;o.style.transform=`rotateY(${(1-p)*80}deg) scale(${.94+.06*p})`;});
+  up($('x_go'),k(t,V('fix',.75),.6),14);}},
+{id:'p1a',bg:'bg-warm',html:leftCol('p1a','p1_tag','p1a_h','p1a_s','')+`
+  <div class="pos" style="left:820px;top:290px;width:960px" id="p1a_m"><div class="other" style="position:relative;padding:44px">
+    <span class="siteby">다른 웹사이트</span>
+    <div class="lb">비밀번호</div><div class="ofield">••••••••••</div>
+    <div class="lb" style="margin-top:26px">비밀번호 확인</div><div class="ofield" id="p1a_f"><span id="p1a_d"></span></div>
+    <div class="oerr" id="p1a_e">${ic('alert')}<span>비밀번호가 일치하지 않습니다</span></div>
+  </div></div>
+  <div class="pos" id="p1a_cnt" style="left:820px;top:760px;font-size:28px;font-weight:700;color:var(--red)">한 글자마다 경고 <span id="p1a_n" style="font-size:44px;font-weight:900">0</span>번</div>`,
+ draw(t,$){leftDraw('p1a',t,$);up($('p1a_m'),k(t,.4,.6),30);
+  const t0=V('p1a',.35),n=Math.max(0,Math.min(9,Math.floor((t-t0)/0.42)));$('p1a_d').textContent='•'.repeat(n);
+  $('p1a_f').className='ofield'+(n>0?' err':'');const sk=n>0?(t-t0)-(n-1)*.42:9;
+  $('p1a_e').style.opacity=n>0?1:0;$('p1a_e').style.transform=`translateX(${n>0&&sk<.25?Math.sin(sk*60)*8*(1-sk/.25):0}px)`;
+  $('p1a_n').textContent=n;up($('p1a_cnt'),n>0?1:0,10);}},
+{id:'p1b',bg:'bg-white',html:leftCol('p1b','p1b_tag','p1b_h','p1b_s','p1b_pr','solid')+win('p1b',['s2_typing','s2_match','s2_mismatch'],'signup/2')+`
+  <div class="bubble" id="p1b_b1" style="left:1150px;top:850px">입력 중 · 경고 없음</div>
+  <div class="bubble ok" id="p1b_b2" style="left:1150px;top:850px">${ic('check')}비밀번호가 일치합니다.</div>
+  <div class="bubble red" id="p1b_b3" style="left:1100px;top:850px">${ic('alert')}다르면 다음 단계로 넘어가지 않아요</div>`,
+ draw(t,$){leftDraw('p1b',t,$);up($('p1b_win'),k(t,.2,.7),30);
+  const A=V('p1b',.05),B=V('p1b',.55),C=V('p1b',.82);
+  camPath($('p1b_cam'),t,[[0,null,1],[A,BX.pw2,2.0],[C-.2,{x:500,y:650,width:440,height:150},1.75]]);
+  imgShow('p1b','s2_typing',1);imgShow('p1b','s2_match',k(t,B,.4));imgShow('p1b','s2_mismatch',k(t,C,.4));
+  hlAt($('p1b_hl2'),BX.pw2_ok,k(t,B+.2,.4)*(1-k(t,C,.3)));
+  hlAt($('p1b_hl'),t<C?null:BX.pw2_bad,k(t,C+.2,.4));
+  bubble($('p1b_b1'),k(t,A+.6,.4)*(1-k(t,B-.2,.3)));bubble($('p1b_b2'),k(t,B+.2,.4)*(1-k(t,C-.2,.3)));bubble($('p1b_b3'),k(t,C+.2,.4));
+  const nx=BX.next.x+BX.next.width*.6,ny=BX.next.y+BX.next.height/2;const cx=lerp(720,nx,k(t,C-.1,.6)),cy=lerp(860,ny,k(t,C-.1,.6));cursorAt('p1b',cx,cy,k(t,C-.3,.3));ripple('p1b',nx,ny,C+.55,t);}},
+{id:'p1c',bg:'bg-white',html:`
+  <div class="pos" style="left:110px;top:120px;width:560px" id="p1c_L">
+    <div class="chip solid" style="font-size:22px">${ic('lock')}<span>보안 안내</span></div>
+    <div class="h" data-t="p1c_h" id="p1c_h" style="margin-top:26px"></div>
+    <div class="backend" id="p1c_be"><div class="hd">${ic('shield')}<span data-t="p1c_hd"></span></div>
+      ${[1,2,3].map((i)=>`<div class="bitem" id="p1c_i${i}"><span class="ic">${ic(['lock','server','shield'][i-1])}</span><div><span data-t="b${i}"></span><small data-t="b${i}s"></small></div></div>`).join('')}</div>
+  </div>`+win('p1c',['s2_match'],'signup/2')+`
+  <div class="bubble ok" id="p1c_b" style="left:1060px;top:850px">${ic('lock')}256비트 암호화로 안전하게 보호됩니다</div>`,
+ draw(t,$){up($('p1c_L'),k(t,.05,.5));up($('p1c_win'),1,0);
+  camPath($('p1c_cam'),t,[[0,{x:500,y:650,width:440,height:150},1.75],[.4,BX.lock,2.4]]);imgShow('p1c','s2_match',1);
+  hlAt($('p1c_hl2'),BX.lock,k(t,1.1,.4),8);bubble($('p1c_b'),k(t,1.4,.4));
+  up($('p1c_be'),k(t,V('p1c',.15),.5),16);[1,2,3].forEach(i=>up($('p1c_i'+i),k(t,V('p1c',.3)+i*.5,.5),20));}},
+{id:'p2a',bg:'bg-warm',html:leftCol('p2a','p2_tag','p2a_h','p2a_s','')+`
+  <div class="pos" style="left:860px;top:300px;width:900px" id="p2a_m"><div class="other" style="position:relative;padding:60px;text-align:center">
+    <span class="siteby">다른 웹사이트</span>
+    <div style="width:84px;height:84px;border-radius:50%;background:#E4E4E4;color:#8A8A8A;display:grid;place-items:center;margin:0 auto 26px">${ic('x','ico')}</div>
+    <div class="omsg" style="font-size:44px;color:#3A3A3A">탈퇴한 회원입니다.</div>
+    <div style="font-size:26px;color:#8A8A8A;margin-top:12px">가입할 수 없습니다.</div>
+    <div class="obtn" style="margin-top:36px">확인</div></div></div>`,
+ draw(t,$){leftDraw('p2a',t,$);const p=k(t,V('p2a',.45),.35);const m=$('p2a_m');m.style.opacity=p;m.style.transform=`scale(${1.12-.12*p})`;}},
+{id:'p2b',bg:'bg-white',html:leftCol('p2b','p2b_tag','p2b_h','p2b_s','p2b_pr','solid')+win('p2b',['rejoin','s2_back'],'rejoin')+`
+  <div class="bubble ok" id="p2b_b1" style="left:1110px;top:850px">"다시 돌아오셨군요!" 환영 인사</div>
+  <div class="bubble" id="p2b_b2" style="left:1060px;top:850px">탈퇴한 기록과 날짜를 부드럽게</div>
+  <div class="bubble red" id="p2b_b3" style="left:1100px;top:850px">다시 가입할 수 있는 날까지</div>
+  <div class="bubble ok" id="p2b_b4" style="left:1060px;top:850px">${ic('check')}같은 이메일로 바로 다시 가입</div>`,
+ draw(t,$){leftDraw('p2b',t,$);up($('p2b_win'),k(t,.2,.7),30);
+  const A=V('p2b',.08),B=V('p2b',.32),C=V('p2b',.52),E=V('p2b',.74);
+  const R=BX;camPath($('p2b_cam'),t,[[0,null,1],[A,{x:500,y:150,width:440,height:150},1.9],[B,R.rj_lead,2.0],[C,R.rj_facts,1.8],[E,R.banner,1.9]]);
+  imgShow('p2b','rejoin',1);imgShow('p2b','s2_back',k(t,E,.5));
+  const sel=t<B?['ok',R.rj_hello,A+.5]:t<C?['',R.rj_lead,B+.5]:t<E?['',R.rj_open,C+.5]:['ok',R.banner,E+.6];
+  hlAt($('p2b_hl2'),sel[0]==='ok'?sel[1]:null,k(t,sel[2],.4));hlAt($('p2b_hl'),sel[0]===''?sel[1]:null,k(t,sel[2],.4));
+  bubble($('p2b_b1'),k(t,A+.5,.4)*(1-k(t,B-.1,.3)));bubble($('p2b_b2'),k(t,B+.5,.4)*(1-k(t,C-.1,.3)));
+  bubble($('p2b_b3'),k(t,C+.5,.4)*(1-k(t,E-.1,.3)));bubble($('p2b_b4'),k(t,E+.6,.4));}},
+{id:'p3a',bg:'bg-warm',html:leftCol('p3a','p3_tag','p3a_h','p3a_s','')+`
+  <div class="pos" style="left:820px;top:230px;width:980px" id="p3a_m"><div class="other" style="position:relative;padding:0;overflow:hidden">
+    <span class="siteby" style="top:14px;left:auto;right:20px">다른 웹사이트</span>
+    <div style="height:72px;background:#fff;border-bottom:1px solid #E2E2E2;display:flex;align-items:center;gap:30px;padding:0 30px;font-size:18px;color:#777">
+      <b style="color:#333;font-size:22px">STORE</b><span>제품</span><span>지원</span><span style="margin-left:auto;width:22px;height:22px">${ic('search')}</span>
+      <span id="p3a_bag" style="width:26px;height:26px;display:grid;place-items:center">${ic('bag')}</span></div>
+    <div style="padding:40px 50px;height:300px;position:relative">
+      <div style="font-size:22px;color:#999">장바구니가 비어 있습니다.</div>
+      <div style="font-size:15px;color:#9a9a9a;margin-top:18px">저장한 항목을 보려면 <u id="p3a_link" style="color:#2A6BD8">로그인</u>하세요</div>
+      <div style="font-size:13px;color:#a2a2a2;position:absolute;left:50px;bottom:40px">계정이 없으신가요? <u id="p3a_link2" style="color:#2A6BD8">계정 생성 ↗</u></div>
+    </div></div></div>
+  <div class="pos steps" id="p3a_steps" style="left:820px;top:690px">
+    <span class="step" id="p3a_s1"><b>1</b>장바구니 아이콘</span>${ic('arrow')}
+    <span class="step" id="p3a_s2"><b>2</b>작은 로그인 링크</span>${ic('arrow')}
+    <span class="step" id="p3a_s3"><b>3</b>계정 생성 링크</span></div>
+  <svg class="cursor" id="p3a_cur" style="position:absolute;width:40px;height:40px" aria-hidden="true"><use href="#i-cursor"/></svg>`,
+ draw(t,$){leftDraw('p3a',t,$);up($('p3a_m'),k(t,.3,.6),30);
+  const pts=[[1300,520],[1490,640],[1735,268],[1035,407],[1180,575]];/* wander → bag → login → create */
+  const t0=V('p3a',.2),seg=.75;let x=pts[0][0],y=pts[0][1];
+  for(let i=1;i<pts.length;i++){const p=k(t,t0+(i-1)*seg,seg*.85);x=lerp(x,pts[i][0],p);y=lerp(y,pts[i][1],p);}
+  const c=$('p3a_cur');c.style.left=x+'px';c.style.top=y+'px';c.style.opacity=k(t,t0-.3,.3);
+  [1,2,3].forEach(i=>up($('p3a_s'+i),k(t,t0+(i+1)*seg-.1,.4),12));}},
+{id:'p3b',bg:'bg-white',html:leftCol('p3b','p3b_tag','p3b_h','p3b_s','p3b_pr','solid')+win('p3b',['home','home_pop','login'],'')+`
+  <div class="bubble" id="p3b_b1" style="left:1220px;top:850px">오른쪽 위에 바로 보여요</div>
+  <div class="bubble ok" id="p3b_b2" style="left:1150px;top:850px">${ic('check')}로그인 · 회원가입 같은 크기</div>
+  <div class="bubble ok" id="p3b_b3" style="left:1150px;top:850px">${ic('check')}로그인 화면도 같은 크기</div>
+  <div class="pos counter" id="p3b_cnt" style="left:110px;top:640px"><span class="n old">3+</span><span class="n" id="p3b_n">2</span><span style="font-size:30px;font-weight:700">번 클릭이면 가입</span></div>`,
+ draw(t,$){leftDraw('p3b',t,$);up($('p3b_win'),k(t,.2,.7),30);
+  const A=V('p3b',.05),B=V('p3b',.36),C=V('p3b',.62),E=V('p3b',.8);
+  const acc=BX.acct,pop=BX.pop;
+  camPath($('p3b_cam'),t,[[0,null,1],[A,{x:1000,y:0,width:440,height:200},2.2],[B,{x:1130,y:40,width:300,height:260},2.4],[C,{x:480,y:330,width:480,height:380},1.5]]);
+  imgShow('p3b','home',1);imgShow('p3b','home_pop',k(t,B-.05,.25));imgShow('p3b','login',k(t,C,.45));
+  hlAt($('p3b_hl'),t<B?acc:null,k(t,A+.6,.4),6);
+  const bothPop=BX.pop_both;
+  hlAt($('p3b_hl2'),t<B?null:t<C?bothPop:BX.login_btns,t<C?k(t,B+.4,.4):k(t,C+.6,.4),8);
+  bubble($('p3b_b1'),k(t,A+.7,.4)*(1-k(t,B-.2,.3)));bubble($('p3b_b2'),k(t,B+.5,.4)*(1-k(t,C-.1,.3)));bubble($('p3b_b3'),k(t,C+.7,.4));
+  const cx=acc.x+acc.width/2,cy=acc.y+acc.height/2;const px=lerp(1200,cx,k(t,A+.2,.8)),py=lerp(300,cy,k(t,A+.2,.8));
+  const sx=BX.pop_signup.x+BX.pop_signup.width/2,sy=BX.pop_signup.y+BX.pop_signup.height/2;
+  const qx=lerp(px,sx,k(t,B+.3,.6)),qy=lerp(py,sy,k(t,B+.3,.6));
+  cursorAt('p3b',qx,qy,k(t,A,.3)*(1-k(t,C-.1,.2)));ripple('p3b',cx,cy,B-.35,t);ripple('p3b',sx,sy,B+1.0,t);
+  up($('p3b_cnt'),k(t,E,.5),16);const n=$('p3b_n');n.style.transform=`scale(${1+.25*Math.max(0,1-Math.abs(t-E-.6)/.4)})`;}},
+{id:'end',bg:'bg-red',html:`
+  <img src="${MASCOT}" alt="" class="pos" id="e_m" style="left:110px;top:270px;width:400px">
+  <div class="pos" style="left:600px;top:200px;width:1220px">
+    <div data-t="end_1" id="e_1" style="font-size:58px;font-weight:900;line-height:1.35;white-space:pre-line;letter-spacing:-.03em"></div>
+    <div data-t="end_2" id="e_2" style="font-size:44px;font-weight:700;margin-top:40px"></div>
+    <div id="e_r" style="height:4px;background:rgba(255,255,255,.6);border-radius:2px;margin-top:54px;width:0"></div>
+    <div style="display:flex;align-items:center;gap:34px;margin-top:36px" id="e_by">
+      <div data-t="end_by" style="font-size:46px;font-weight:900"></div>
+      <div style="display:flex;align-items:center;gap:12px;opacity:.9"><svg style="width:46px;height:46px;color:#fff" aria-hidden="true"><use href="#i-logo"/></svg><div><div style="font-size:24px;font-weight:900;line-height:1">HJ전자</div><div style="font-size:11px;letter-spacing:.3em;margin-top:4px">ELECTRONICS</div></div></div>
+    </div></div>`,
+ draw(t,$){pop($('e_m'),k(t,.1,.8));up($('e_1'),k(t,.4,.9));up($('e_2'),k(t,V('end',.62),.7));
+  $('e_r').style.width=(k(t,V('end',.8),.8)*100)+'%';up($('e_by'),k(t,V('end',.85),.7));}}
+];
+function introArt(i){
+  if(i===1)return `<div style="width:100%"><div class="ofield" id="i_f1" style="height:58px;font-size:26px"><span id="i_d1"></span></div><div class="oerr" id="i_e1" style="font-size:19px">${ic('alert')}<span>일치하지 않습니다</span></div></div>`;
+  if(i===2)return `<div style="position:relative;width:100%;text-align:center"><div class="other" style="padding:24px"><div class="omsg" style="font-size:28px">탈퇴한 회원입니다.</div><div style="font-size:18px;color:#999;margin-top:6px">가입할 수 없습니다.</div></div>
+    <div id="i_s2" style="position:absolute;right:-6px;top:-30px;border:4px solid var(--red);color:var(--red);font-weight:900;font-size:22px;padding:4px 12px;border-radius:8px;background:#fff">차가운 안내</div></div>`;
+  return `<div style="position:relative;width:100%" id="i_box"><div class="other" style="padding:0;overflow:hidden"><div style="height:52px;background:#fff;display:flex;align-items:center;gap:16px;padding:0 18px;font-size:14px;color:#888"><b style="color:#333">STORE</b><span>제품</span><span>지원</span><span style="margin-left:auto;width:18px;height:18px">${ic('search')}</span><span style="width:20px;height:20px">${ic('bag')}</span></div>
+    <div style="padding:18px 18px 16px;font-size:13px;color:#aaa;line-height:1.5">장바구니가 비어 있습니다.<br><span style="display:inline-block;margin-top:34px;font-size:12px">계정이 없으신가요? <u id="i_lk" style="color:#2A6BD8">계정 생성 ↗</u></span></div></div>
+    <div id="i_mg" style="position:absolute;left:0;top:0;border-radius:50%;border:5px solid var(--red);pointer-events:none;opacity:0"></div>
+    <svg id="i_cur" style="position:absolute;left:0;top:0;width:30px;height:30px;opacity:0;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))" aria-hidden="true"><use href="#i-cursor"/></svg>
+    <div id="i_q" style="position:absolute;left:0;top:0;font-size:30px;font-weight:900;color:var(--red);opacity:0">?</div></div>`;
+}
+
+/* ===== engine ===== */
+const ease=x=>1-Math.pow(1-x,3);
+function k(t,s,d){return ease(Math.min(1,Math.max(0,(t-s)/d)));}
+function up(el,p,dist=36){if(!el)return;el.style.opacity=p;el.style.transform=`translateY(${(1-p)*dist}px)`;}
+function pop(el,p){if(!el)return;const s=p<1?.6+.4*p+Math.sin(p*Math.PI)*.12:1;el.style.opacity=Math.min(1,p*1.6);el.style.transform=`scale(${s})`;}
+const FADE=.45;
+const stage=document.getElementById('stage');
+let starts=[],TOTAL=0;
+function layout(){starts=[];TOTAL=0;SCENES.forEach(s=>{s.dur=D[s.id].dur;s.name=D[s.id].name;starts.push(TOTAL);TOTAL+=s.dur;});}
+function build(){stage.innerHTML=SCENES.map((s,i)=>`<section class="scene ${s.bg}" data-i="${i}">${s.html}</section>`).join('')+'<div class="subs" id="subs"></div>';fillText();layout();}
+function fillText(){stage.querySelectorAll('[data-t]').forEach(el=>{if(document.activeElement!==el)el.textContent=TXT[el.dataset.t]??'';});}
+function getter(i){const root=stage.children[i];return id=>root.querySelector('#'+id);}
+/* subtitles: sentences of the narration spread over the voice by length */
+let SUBS=[];
+function makeSubs(){SUBS=DATA.map(s=>{const parts=s.say.split(/(?<=[.?!])\s+/).filter(Boolean);const tot=parts.reduce((a,p)=>a+p.length,0)||1;let acc=0;
+  return parts.map(p=>{const a=LEAD+acc/tot*s.vdur;acc+=p.length;return {a,b:LEAD+acc/tot*s.vdur+.25,txt:p};});});}
+makeSubs();
+let subsOn=P.subtitles!==false;
+let cur=0,now=0;
+function seek(time){
+  time=Math.max(0,Math.min(TOTAL-1e-6,time));
+  let i=starts.findIndex((s,j)=>time>=s&&time<s+SCENES[j].dur);if(i<0)i=SCENES.length-1;
+  const lt=time-starts[i];
+  [...stage.querySelectorAll('.scene')].forEach((sc,j)=>sc.classList.toggle('on',j===i||(j===i-1&&lt<FADE)));
+  const sc=stage.children[i];sc.style.opacity=i===0?Math.min(1,lt/FADE):Math.min(1,lt/FADE);sc.style.zIndex=2;
+  SCENES[i].draw(lt,getter(i));
+  if(i>0&&lt<FADE){const pv=stage.children[i-1];pv.style.opacity=1;pv.style.zIndex=1;SCENES[i-1].draw(SCENES[i-1].dur,getter(i-1));}
+  const sub=SUBS[i].find(s=>lt>=s.a&&lt<s.b);const se=document.getElementById('subs');se.textContent=sub?sub.txt:'';se.classList.toggle('off',!subsOn);
+  cur=i;now=time;ui();
+}
+/* ===== audio (player only) ===== */
+const voiceSrc={};DATA.forEach((s,i)=>voiceSrc[s.id]=P.voices[s.id]?P.voices[s.id].url:AUD['v'+(i+1)]);
+const vEls={};let musicEl=null,volV=P.voiceVolume??1,volM=P.musicVolume??.6;
+function audioInit(){if(musicEl)return;musicEl=new Audio(AUD.music);musicEl.loop=false;
+  DATA.forEach(s=>{vEls[s.id]=new Audio(voiceSrc[s.id]);});applyVol();}
+function applyVol(){if(!musicEl)return;musicEl.volume=Math.min(1,volM*.9);Object.values(vEls).forEach(a=>a.volume=Math.min(1,volV));}
+function audioSync(force){if(!musicEl)return;
+  if(force||Math.abs(musicEl.currentTime-now)>.3){try{musicEl.currentTime=now;}catch(e){}}
+  if(playing&&musicEl.paused)musicEl.play().catch(()=>{});
+  DATA.forEach((s,i)=>{const a=vEls[s.id];const off=now-starts[i]-LEAD;const active=playing&&i===cur&&off>=0&&off<(a.duration||s.vdur);
+    if(active){if(force||a.paused||Math.abs(a.currentTime-off)>.35){try{a.currentTime=off;}catch(e){}a.play().catch(()=>{});}}
+    else if(!a.paused)a.pause();});}
+function audioStop(){if(!musicEl)return;musicEl.pause();Object.values(vEls).forEach(a=>a.pause());}
+let playing=false,last=0;
+function tick(ts){if(!playing)return;const dt=(ts-last)/1000;last=ts;now+=dt;if(now>=TOTAL){now=TOTAL-1e-6;play(false);}seek(now);audioSync(false);if(playing)requestAnimationFrame(tick);}
+function play(on){playing=on;$id('play').textContent=on?'일시정지':'재생';
+  if(on){audioInit();if(now>=TOTAL-0.05)now=0;last=performance.now();audioSync(true);requestAnimationFrame(tick);}else audioStop();}
+function $id(x){return document.getElementById(x)}
+const fmt=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
+function ui(){const sc=$id('scrub');if(!sc)return;if(document.activeElement!==sc)sc.value=Math.round(now/TOTAL*1000);
+  $id('time').textContent=fmt(now)+' / '+fmt(TOTAL);$id('chips').querySelectorAll('button').forEach((b,j)=>b.classList.toggle('cur',j===cur));}
+function fit(){const s=$id('vp').clientWidth/1920;stage.style.transform=`scale(${s})`;}
+addEventListener('resize',fit);
+build();fit();
+$id('chips').innerHTML=SCENES.map((s,i)=>`<button data-j="${i}">${i+1}. ${s.name}</button>`).join('');
+const jump=j=>{seek(starts[j]+(editing?s_end(j):0.001));if(playing)audioSync(true);};
+const s_end=j=>SCENES[j].dur-.05;
+$id('chips').addEventListener('click',e=>{const b=e.target.closest('button');if(b)jump(+b.dataset.j);});
+$id('play').addEventListener('click',()=>play(!playing));
+$id('prev').addEventListener('click',()=>jump(Math.max(0,cur-(now-starts[cur]<.6?1:0))));
+$id('next').addEventListener('click',()=>jump(Math.min(SCENES.length-1,cur+1)));
+$id('scrub').addEventListener('input',e=>{seek(e.target.value/1000*TOTAL);if(playing)audioSync(true);});
+$id('subBtn').addEventListener('click',()=>{subsOn=!subsOn;$id('subBtn').classList.toggle('on',subsOn);$id('subBtn').textContent=subsOn?'자막 켜짐':'자막 꺼짐';$id('subBtn').setAttribute('aria-pressed',String(subsOn));seek(now);});
+let editing=false;
+$id('edit').addEventListener('click',()=>{editing=!editing;play(false);$id('edit').classList.toggle('on',editing);$id('edit').textContent=editing?'편집 끝내기':'텍스트 편집';$id('edit').setAttribute('aria-pressed',String(editing));
+  stage.classList.toggle('editing',editing);stage.querySelectorAll('[data-t]').forEach(el=>el.contentEditable=editing?'plaintext-only':'false');if(editing)seek(starts[cur]+s_end(cur));});
+stage.addEventListener('input',e=>{const el=e.target.closest('[data-t]');if(!el)return;TXT[el.dataset.t]=el.innerText;
+  stage.querySelectorAll(`[data-t="${el.dataset.t}"]`).forEach(o=>{if(o!==el)o.textContent=TXT[el.dataset.t];});P.texts[el.dataset.t]=TXT[el.dataset.t];dirty();});
+$id('reset').addEventListener('click',()=>{TXT=Object.assign({},DEFAULT_TXT);P.texts={};fillText();seek(now);dirty();});
+document.addEventListener('keydown',e=>{if(editing||e.target.matches('input,textarea,select'))return;if(e.code==='Space'){e.preventDefault();play(!playing);}});
+/* ===== 편집 기능 (저장 · 폰트 · 목소리 · 자막 · MP4 만들기) ===== */
+let CFG={storage:'local',needsKey:false};
+try{CFG=await fetch('/api/config').then(r=>r.json());}catch(e){}
+const keyEl=$id('editKey');
+try{keyEl.value=sessionStorage.getItem('studio-key')||'';}catch(e){}
+keyEl.addEventListener('input',()=>{try{sessionStorage.setItem('studio-key',keyEl.value);}catch(e){}});
+if(!CFG.needsKey)keyEl.hidden=true;
+const hdr=(extra={})=>Object.assign({'x-edit-key':keyEl.value||''},extra);
+function setState(id,txt,cls=''){const el=$id(id);el.textContent=txt;el.className='state '+cls;}
+const storageNote=CFG.storage==='supabase'?'Supabase에 저장돼요':'서버 임시 저장소 사용 중 (Supabase를 연결하면 영구 저장돼요)';
+let isDirty=false;
+function dirty(){isDirty=true;setState('saveState','저장하지 않은 변경이 있어요 · '+storageNote);}
+setState('saveState',(PROJ&&PROJ.updated_at?'마지막 저장 '+new Date(PROJ.updated_at).toLocaleString('ko-KR')+' · ':'')+storageNote,'ok');
+async function api(method,url,body,extra){const r=await fetch(url,{method,headers:hdr(extra),body});let j={};try{j=await r.json();}catch(e){}
+  if(!r.ok)throw new Error(j.error||('요청 실패 '+r.status));return j;}
+async function save(){P.voiceVolume=volV;P.musicVolume=volM;P.subtitles=subsOn;
+  setState('saveState','저장하는 중…');
+  try{const row=await api('PUT','/api/projects/'+SLUG,JSON.stringify({data:P}),{'Content-Type':'application/json'});isDirty=false;
+    setState('saveState','저장했어요 '+new Date(row.updated_at).toLocaleTimeString('ko-KR')+' · '+storageNote,'ok');return true;}
+  catch(e){setState('saveState',e.message,'err');return false;}}
+$id('saveBtn').addEventListener('click',save);
+addEventListener('beforeunload',e=>{if(isDirty){e.preventDefault();e.returnValue='';}});
+
+/* 장면 길이가 바뀌면 다시 배치 */
+function relayout(){applyOverrides();layout();makeSubs();seek(Math.min(now,TOTAL-.01));renderVoiceRows();}
+
+/* --- 폰트 --- */
+const FONT_CSS={'Pretendard':'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css',
+  'IBM Plex Sans KR':'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap',
+  'Nanum Gothic':'https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap',
+  'Gowun Dodum':'https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap',
+  'Do Hyeon':'https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap'};
+async function applyFont(){let fam=P.font||'Noto Sans KR';
+  if(fam==='__custom'&&P.fontUrl){let st=document.getElementById('font-custom');if(!st){st=document.createElement('style');st.id='font-custom';document.head.appendChild(st);}
+    st.textContent=`@font-face{font-family:"StudioCustom";src:url("${P.fontUrl}");font-display:block}`;fam='StudioCustom';}
+  else if(fam==='__custom'){fam='Noto Sans KR';}
+  if(FONT_CSS[fam]&&!document.querySelector(`link[data-font="${fam}"]`)){const l=document.createElement('link');l.rel='stylesheet';l.href=FONT_CSS[fam];l.dataset.font=fam;document.head.appendChild(l);
+    await new Promise(r=>{l.onload=r;l.onerror=r;});}
+  stage.style.fontFamily=`"${fam}","Noto Sans KR","Noto Sans CJK KR",sans-serif`;
+  try{await document.fonts.load(`900 40px "${fam}"`);await document.fonts.load(`400 40px "${fam}"`);}catch(e){}
+  await document.fonts.ready;seek(now);}
+$id('fontSel').value=P.font||'Noto Sans KR';
+$id('fontSel').addEventListener('change',async e=>{if(e.target.value==='__custom'&&!P.fontUrl){setState('fontState','먼저 폰트 파일을 올려 주세요','err');e.target.value=P.font||'Noto Sans KR';return;}
+  P.font=e.target.value;await applyFont();dirty();setState('fontState','');});
+$id('fontFile').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;const ext=(f.name.split('.').pop()||'').toLowerCase();
+  setState('fontState','올리는 중…');
+  try{const j=await api('POST',`/api/upload?p=${SLUG}&kind=font&ext=${ext}`,f);P.fontUrl=j.url;P.font='__custom';$id('fontSel').value='__custom';await applyFont();dirty();setState('fontState',f.name+' 적용됨','ok');}
+  catch(err){setState('fontState',err.message,'err');}e.target.value='';});
+
+/* --- 목소리: 듣기 / 녹음 / 파일 / 기본으로, 자막(대본) 편집 --- */
+async function audioDuration(blob){const ctx=new (window.AudioContext||window.webkitAudioContext)();
+  try{const buf=await ctx.decodeAudioData(await blob.arrayBuffer());return buf.duration;}finally{ctx.close();}}
+const recState={};let recorder=null,recScene=null,recChunks=[];
+function rowStatus(s,i){const v=P.voices[s.id];const base=BASE[i];
+  const who=v?`${v.name||'내 녹음'} · ${v.dur.toFixed(1)}초`:`기본 AI 음성 · ${base.vdur.toFixed(1)}초`;
+  return `${who} / 장면 ${s.dur.toFixed(1)}초`+(s.dur>base.dur?` (기본 ${base.dur}초에서 늘어남)`:'');}
+function renderVoiceRows(){$id('vrows').innerHTML=DATA.map((s,i)=>`<div class="vrow" data-row="${s.id}">
+  <span class="nm">${i+1}. ${s.name}</span><span class="st">${rowStatus(s,i)}</span>
+  <span class="acts"><button class="cbtn" data-listen="${i}" style="height:32px;font-size:12px">듣기</button>
+  <button class="cbtn rec${recScene===s.id?' on':''}" data-rec="${s.id}" style="height:32px;font-size:12px">${recScene===s.id?'정지 · 저장':'녹음'}</button>
+  <label class="cbtn" style="height:32px;font-size:12px">파일 넣기<input type="file" accept="audio/*" data-file="${s.id}"></label>
+  ${P.voices[s.id]?`<button class="cbtn" data-def="${s.id}" style="height:32px;font-size:12px">기본으로</button>`:''}</span>
+  <textarea data-say="${s.id}" aria-label="${i+1}번 장면 자막">${s.say.replace(/</g,'&lt;')}</textarea>
+  ${recState[s.id]?`<span class="warn">${recState[s.id]}</span>`:''}</div>`).join('');}
+renderVoiceRows();
+function swapVoice(id,src){voiceSrc[id]=src;if(vEls[id]){vEls[id].pause();vEls[id]=new Audio(src);applyVol();}}
+async function uploadVoice(id,blob,name){const ext=(name.split('.').pop()||'webm').toLowerCase().replace('mpeg','mp3');
+  recState[id]='올리는 중…';renderVoiceRows();
+  try{const dur=await audioDuration(blob);
+    const j=await api('POST',`/api/upload?p=${SLUG}&kind=voice&scene=${id}&ext=${ext}`,blob);
+    P.voices[id]={url:j.url,dur:Math.round(dur*100)/100,name};swapVoice(id,j.url);delete recState[id];relayout();dirty();}
+  catch(e){recState[id]=e.message;renderVoiceRows();}}
+$id('vrows').addEventListener('change',e=>{const inp=e.target.closest('input[data-file]');if(!inp||!inp.files[0])return;uploadVoice(inp.dataset.file,inp.files[0],inp.files[0].name);inp.value='';});
+$id('vrows').addEventListener('input',e=>{const ta=e.target.closest('textarea[data-say]');if(!ta)return;const id=ta.dataset.say;
+  if(ta.value.trim()&&ta.value!==BASE.find(b=>b.id===id).say)P.says[id]=ta.value;else delete P.says[id];applyOverrides();makeSubs();seek(now);dirty();});
+$id('vrows').addEventListener('click',async e=>{
+  const l=e.target.closest('[data-listen]');if(l){jump(+l.dataset.listen);if(!playing)play(true);return;}
+  const d=e.target.closest('[data-def]');if(d){const id=d.dataset.def,i=DATA.findIndex(s=>s.id===id);delete P.voices[id];swapVoice(id,AUD['v'+(i+1)]);relayout();dirty();return;}
+  const r=e.target.closest('[data-rec]');if(!r)return;const id=r.dataset.rec;
+  if(recorder&&recScene===id){recorder.stop();return;}
+  if(recorder){recState[id]='다른 장면을 녹음하는 중이에요';renderVoiceRows();return;}
+  try{const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
+    const mime=['audio/webm;codecs=opus','audio/webm','audio/mp4'].find(m=>window.MediaRecorder&&MediaRecorder.isTypeSupported(m))||'';
+    recorder=new MediaRecorder(stream,mime?{mimeType:mime}:undefined);recScene=id;recChunks=[];
+    recorder.ondataavailable=ev=>{if(ev.data.size)recChunks.push(ev.data);};
+    recorder.onstop=()=>{stream.getTracks().forEach(t=>t.stop());const type=recorder.mimeType||'audio/webm';const blob=new Blob(recChunks,{type});
+      recorder=null;recScene=null;uploadVoice(id,blob,`녹음.${type.includes('mp4')?'m4a':'webm'}`);};
+    recorder.start();delete recState[id];renderVoiceRows();}
+  catch(err){recState[id]='마이크를 쓸 수 없어요. 브라우저에서 마이크 권한을 허용해 주세요.';renderVoiceRows();}});
+$id('resetVoice').addEventListener('click',()=>{DATA.forEach((s,i)=>{if(P.voices[s.id])swapVoice(s.id,AUD['v'+(i+1)]);});P.voices={};relayout();dirty();});
+$id('volV').value=Math.round(volV*100);$id('volM').value=Math.round(volM*100);
+$id('volV').addEventListener('input',e=>{volV=e.target.value/100;applyVol();dirty();});
+$id('volM').addEventListener('input',e=>{volM=e.target.value/100;applyVol();dirty();});
+$id('subBtn').classList.toggle('on',subsOn);$id('subBtn').textContent=subsOn?'자막 켜짐':'자막 꺼짐';
+$id('subBtn').addEventListener('click',dirty);
+
+/* --- MP4 만들기 (서버 렌더) --- */
+let polling=null;
+$id('renderBtn').addEventListener('click',async()=>{if(polling)return;
+  if(!(await save()))return;
+  setState('renderState','영상 만들기를 시작했어요…');$id('renderBtn').disabled=true;
+  try{const {jobId}=await api('POST','/api/render/'+SLUG);
+    polling=setInterval(async()=>{try{const j=await fetch('/api/jobs/'+jobId).then(r=>r.json());
+      if(j.status==='done'){clearInterval(polling);polling=null;$id('renderBtn').disabled=false;
+        $id('renderState').innerHTML=`완성됐어요 · <a class="dl" href="${j.output_url}" target="_blank" rel="noopener">MP4 받기</a>`;$id('renderState').className='state ok';}
+      else if(j.status==='failed'){clearInterval(polling);polling=null;$id('renderBtn').disabled=false;setState('renderState','영상 만들기에 실패했어요: '+(j.error||''),'err');}
+      else setState('renderState',(j.status==='queued'?'순서를 기다리는 중':'영상 만드는 중')+` · ${j.progress||0}% (2~10분 걸려요)`);}catch(e){}},3000);}
+  catch(e){$id('renderBtn').disabled=false;setState('renderState',e.message,'err');}});
+
+/* --- 서버 렌더러용 --- */
+window.__video={ready:false,fps:30,seek:t=>seek(t),setSubs:on=>{subsOn=on;seek(now);},
+  info:()=>({scenes:SCENES.map((s,i)=>({id:s.id,dur:s.dur,voice:voiceSrc[s.id]})),music:AUD.music,musicVolume:volM,voiceVolume:volV,subtitles:subsOn})};
+if(EXPORT){document.body.classList.add('export');stage.style.transform='none';}
+await applyFont();
+await Promise.all([...document.images].map(im=>im.decode?im.decode().catch(()=>{}):null));
+seek(0);
+window.__video.ready=true;
+})();
+</script>
+</body>
+</html>

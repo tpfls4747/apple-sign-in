@@ -1,0 +1,144 @@
+{
+ "W": 1440,
+ "H": 900,
+ "boxes": {
+  "acct": {
+   "x": 1042.9,
+   "y": 8,
+   "width": 155.1,
+   "height": 36
+  },
+  "cart": {
+   "x": 1204,
+   "y": 8,
+   "width": 40,
+   "height": 36
+  },
+  "pop": {
+   "x": 1144,
+   "y": 50,
+   "width": 280,
+   "height": 294.9
+  },
+  "pop_login": {
+   "x": 1161,
+   "y": 144.1,
+   "width": 246,
+   "height": 36
+  },
+  "pop_signup": {
+   "x": 1161,
+   "y": 188.1,
+   "width": 246,
+   "height": 36
+  },
+  "login_btn": {
+   "x": 500,
+   "y": 347.6,
+   "width": 440,
+   "height": 48
+  },
+  "login_new": {
+   "x": 500,
+   "y": 638.2,
+   "width": 440,
+   "height": 48
+  },
+  "pw": {
+   "x": 500,
+   "y": 417.8,
+   "width": 440,
+   "height": 217.6
+  },
+  "pw2": {
+   "x": 500,
+   "y": 649.3,
+   "width": 440,
+   "height": 58
+  },
+  "lock": {
+   "x": 500,
+   "y": 615.3,
+   "width": 440,
+   "height": 20
+  },
+  "next": {
+   "x": 579.6,
+   "y": 760.1,
+   "width": 360.4,
+   "height": 48
+  },
+  "pw2msg_ok": {
+   "x": 500,
+   "y": 713.3,
+   "width": 440,
+   "height": 20.8
+  },
+  "rj_hello": {
+   "x": 500,
+   "y": 237.9,
+   "width": 440,
+   "height": 44.2
+  },
+  "rj_lead": {
+   "x": 500,
+   "y": 344.0,
+   "width": 440,
+   "height": 51
+  },
+  "rj_facts": {
+   "x": 500,
+   "y": 415.0,
+   "width": 440,
+   "height": 153.2
+  },
+  "rj_btn": {
+   "x": 500,
+   "y": 699,
+   "width": 440,
+   "height": 48
+  },
+  "banner": {
+   "x": 500,
+   "y": 319.0,
+   "width": 440,
+   "height": 91.2
+  },
+  "pop_both": {
+   "x": 1161,
+   "y": 144.1,
+   "width": 246,
+   "height": 80.0
+  },
+  "login_btns": {
+   "x": 500,
+   "y": 347.6,
+   "width": 440,
+   "height": 338.6
+  },
+  "pw2_ok": {
+   "x": 500,
+   "y": 649.3,
+   "width": 440,
+   "height": 84.8
+  },
+  "pw2_bad": {
+   "x": 500,
+   "y": 649.3,
+   "width": 440,
+   "height": 158.8
+  },
+  "rj_open": {
+   "x": 500,
+   "y": 466.4,
+   "width": 440,
+   "height": 51.4
+  },
+  "rj_out": {
+   "x": 500,
+   "y": 415.0,
+   "width": 440,
+   "height": 51.4
+  }
+ }
+}

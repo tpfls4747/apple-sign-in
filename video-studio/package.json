@@ -1,0 +1,10 @@
+{
+  "name": "hj-video-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "HJ전자 회원가입 UX 발표 영상 스튜디오 - 웹에서 문구·폰트·목소리를 고치고 서버에서 MP4로 렌더",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": { "start": "node server/index.js" },
+  "dependencies": { "playwright": "1.48.2" }
+}

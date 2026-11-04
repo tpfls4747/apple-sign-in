@@ -1,0 +1,22 @@
+# Render Blueprint - HJ전자 발표 영상 스튜디오
+# Render 대시보드 > New > Blueprint 에서 이 저장소를 고르면 아래 설정대로 서비스가 만들어져요.
+services:
+  - type: web
+    name: hj-video-studio
+    runtime: docker
+    rootDir: video-studio
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    # 영상 렌더(크롬 + ffmpeg)에는 메모리 2GB 이상을 권장해요. 무료(free)·starter에서는 렌더가 멈출 수 있어요.
+    plan: standard
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_BUCKET
+        value: studio
+      - key: EDIT_PASSWORD
+        sync: false
