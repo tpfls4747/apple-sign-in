@@ -9,7 +9,7 @@ description: "회원가입 등 사용자 흐름 캡처를 UX 원칙으로 분석
 
 전체 순서: 0 입력 → 1 분석 → 2 원칙 → 3 프로토타입(1차) → 4 로고 → 5 개선 노트 문서 → 6 GitHub → 7 2차 보완 → 8 부가 화면 → 9 동기화 규칙 → 10 답변.
 
-관련 스킬: 로고는 `mascot-silhouette-logo`, 탈퇴 후 재가입 화면은 `account-rejoin-restriction`을 함께 쓴다.
+관련 스킬: 로고는 `mascot-silhouette-logo`, 탈퇴 후 재가입 화면은 `account-rejoin-restriction`을 함께 쓴다. 프로토타입의 가짜 계정·고정 코드를 실제 인증 서비스로 바꿀 때는 `auth-signup-backend`를 따른다(그때 7번의 체험 계정·고정 코드 항목은 더 이상 쓰지 않는다).
 
 ## 0. 입력 확인
 
