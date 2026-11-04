@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
 <style>
 :root{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}
-/* Layout: sticky store header over one centered work column; review notes in a right-side drawer that pushes the column on wide screens */
+/* Layout: sticky store header over one centered work column */
 :root{
   --bg:#FFFFFF; --bg-alt:#FBF5F5; --surface:#FFFFFF; --ink:#1B1516; --muted:#6B5F61; --line:#EEE3E4; --line-strong:#D6C6C8;
   --accent:#E0262F; --accent-hover:#C11C24; --on-accent:#FFFFFF; --accent-soft:#FDECEC;
@@ -40,7 +40,6 @@ a{color:var(--accent)}
 h1,h2,h3{text-wrap:balance;margin:0;line-height:1.3}
 .wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .shell{transition:padding-right .25s}
-@media (min-width:1180px){body.notes-open .shell{padding-right:360px}}
 
 /* header */
 .gnb{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
@@ -153,20 +152,23 @@ main>section:not(.home){background:var(--bg-alt);min-height:calc(100vh - 61px)}
 .select select{appearance:none;width:100%;height:48px;border:1px solid var(--line-strong);border-radius:var(--r-sm);background:var(--surface);padding:0 40px 0 14px;font:inherit;color:inherit}
 .select::after{content:"";position:absolute;right:16px;top:20px;width:8px;height:8px;border-right:1.5px solid var(--muted);border-bottom:1.5px solid var(--muted);transform:rotate(45deg);pointer-events:none}
 
-/* password rules */
-.rules{list-style:none;margin:2px 0 0;padding:12px 14px;background:var(--bg);border-radius:var(--r-sm);display:grid;gap:4px;font-size:13px}
+/* password rules: speech-bubble shown while typing */
+.pwwrap{position:relative}
+.pwtip{position:absolute;left:0;right:0;top:calc(100% + 10px);z-index:8;background:var(--surface);border:1px solid var(--line-strong);border-radius:var(--r-sm);padding:12px 14px;box-shadow:0 8px 24px rgba(10,14,30,.14);animation:tipin .15s ease-out}
+.pwtip::before{content:"";position:absolute;top:-7px;left:22px;width:12px;height:12px;background:var(--surface);border-left:1px solid var(--line-strong);border-top:1px solid var(--line-strong);transform:rotate(45deg)}
+@keyframes tipin{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.rules{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-size:13px}
 .rules li{display:flex;align-items:center;gap:8px;color:var(--muted)}
 .rules li svg{width:15px;height:15px}
 .rules li .dot{width:15px;height:15px;border-radius:50%;border:1.5px solid var(--line-strong);flex:none}
 .rules li.met{color:var(--ok)}
 .rules li.miss{color:var(--err)}
-.meter{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted);margin-top:4px}
-.meter .bars{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;flex:1}
-.meter .bars i{height:4px;border-radius:2px;background:var(--line)}
-.meter[data-l="1"] .bars i:nth-child(-n+1){background:var(--err)}
-.meter[data-l="2"] .bars i:nth-child(-n+2){background:#D08A12}
-.meter[data-l="3"] .bars i{background:var(--ok)}
-.meter b{font-weight:600;color:var(--ink);min-width:5em;text-align:right}
+.meter{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted);margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.meter .bar{flex:1;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.meter .bar i{display:block;height:100%;width:0;border-radius:3px;background:var(--err);transition:width .2s,background .2s}
+.meter[data-l="2"] .bar i{background:#D08A12}
+.meter[data-l="3"] .bar i{background:var(--ok)}
+.meter b{font-weight:600;color:var(--ink);min-width:6.5em;text-align:right;font-variant-numeric:tabular-nums}
 
 /* stepper */
 .steps{max-width:480px;margin:0 auto 16px}
@@ -217,26 +219,6 @@ main>section:not(.home){background:var(--bg-alt);min-height:calc(100vh - 61px)}
 .summary span{color:var(--muted)}
 .summary b{font-weight:500;overflow-wrap:anywhere;text-align:right}
 
-/* notes drawer */
-.notes{position:fixed;top:calc(61px + env(safe-area-inset-top,0px));right:0;bottom:0;width:min(360px,100%);background:var(--surface);border-left:1px solid var(--line);z-index:15;overflow-y:auto;padding:20px 20px calc(80px + env(safe-area-inset-bottom,0px));padding-right:max(20px,env(safe-area-inset-right,0px));transform:translateX(100%);transition:transform .25s}
-body.notes-open .notes{transform:none}
-.notes .nh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:4px}
-.notes h2{font-size:16px;font-weight:700}
-.notes .scr{font-family:var(--mono);font-size:12px;color:var(--muted)}
-.notes .lead{font-size:13px;color:var(--muted);margin:4px 0 16px}
-.note{border:1px solid var(--note-line);background:var(--note);color:var(--note-ink);border-radius:var(--r);padding:14px;margin-bottom:10px;font-size:13px}
-.note .p{font-family:var(--mono);font-size:11px;letter-spacing:.02em;margin-bottom:6px;color:var(--accent)}
-.note b{display:block;font-size:14px;font-weight:600;margin-bottom:6px;color:var(--ink)}
-.note .ba{display:grid;grid-template-columns:auto 1fr;gap:2px 8px;line-height:1.5}
-.note .ba span:nth-child(odd){font-weight:600}
-.jump{margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
-.jump h3{font-size:13px;color:var(--muted);font-weight:600;margin-bottom:8px}
-.jump div{display:flex;flex-wrap:wrap;gap:6px}
-.jump button{font-size:12px;border:1px solid var(--line-strong);background:var(--surface);border-radius:6px;padding:5px 9px}
-.jump button.on{border-color:var(--accent);color:var(--accent)}
-.fab{color:var(--on-accent)!important;background:var(--accent)!important;border-color:var(--accent)!important}
-.fab{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:22;height:44px;padding:0 16px;border-radius:22px;border:1px solid var(--note-line);background:var(--note);color:var(--note-ink);font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px;box-shadow:0 6px 18px rgba(10,14,30,.12)}
-.fab svg{width:18px;height:18px}
 
 .toast{position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;z-index:40;max-width:calc(100% - 32px)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -256,7 +238,6 @@ h1:focus{outline:none}
 .gnb .wrap{height:var(--gnb-h)}
 .nav a{font-size:13px}
 .pop{top:calc(var(--gnb-h) - 2px)}
-.notes{top:calc(var(--gnb-h) + 1px + env(safe-area-inset-top,0px))}
 main>section:not(.home){background:var(--bg);min-height:calc(100vh - var(--gnb-h) - 1px)}
 .hero h1{font-weight:600}
 
@@ -328,14 +309,12 @@ main>section:not(.home){background:var(--bg);min-height:calc(100vh - var(--gnb-h
 .foot a{color:var(--muted);text-decoration:none}
 .foot a:hover{color:var(--ink);text-decoration:underline}
 
-/* phones: sticky action bar, compact notes button */
+/* phones: sticky action bar */
 @media (max-width:600px){
   .actions{position:sticky;bottom:0;background:var(--bg);padding:12px 0 calc(12px + env(safe-area-inset-bottom,0px));margin-top:18px;z-index:5}
-  .fab{bottom:calc(84px + env(safe-area-inset-bottom,0px));width:44px;padding:0;justify-content:center}
-  .fab span{display:none}
   .toast{bottom:calc(140px + env(safe-area-inset-bottom,0px))}
 }
-@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}.pwtip{animation:none}.meter .bar i{transition:none}}
 </style>
 
 </head>
@@ -356,7 +335,6 @@ main>section:not(.home){background:var(--bg);min-height:calc(100vh - var(--gnb-h
   <symbol id="i-box" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></symbol>
   <symbol id="i-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 20s-7.5-4.5-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10C19.5 15.5 12 20 12 20Z"/></symbol>
   <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/></symbol>
-  <symbol id="i-note" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M5 4h14v11l-5 5H5V4Z"/><path d="M14 20v-5h5M8.5 9h7M8.5 12.5h4"/></symbol>
 </svg>
 
 <header class="gnb">
@@ -428,13 +406,10 @@ main>section:not(.home){background:var(--bg);min-height:calc(100vh - var(--gnb-h
             <p class="msg" id="m-lpw" aria-live="polite"></p>
             <button type="button" class="linkbtn forgot" data-go="reset">암호를 잊으셨나요?</button>
           </div>
-          <label class="check" for="remember"><input type="checkbox" id="remember">이 기기에서 로그인 유지</label>
           <div class="stack">
             <button class="btn btn-primary" type="submit" id="loginBtn">계속</button>
-            <button class="btn btn-line" type="button" id="passkeyBtn" hidden><svg style="width:18px;height:18px"><use href="#i-key"/></svg>패스키로 로그인</button>
           </div>
         </form>
-        <div class="demo" id="loginDemo" hidden>체험 계정: <b>hj@hj.com</b> / 암호 <b>Hj12345!</b></div>
         <div class="or">또는</div>
         <div class="stack">
           <button class="btn btn-line" data-social>카카오로 계속</button>
@@ -456,7 +431,7 @@ main>section:not(.home){background:var(--bg);min-height:calc(100vh - var(--gnb-h
         <ol id="stepList">
           <li><i></i>기본 정보</li><li><i></i>계정 정보</li><li><i></i>약관 동의</li><li><i></i>이메일 인증</li>
         </ol>
-        <div class="count" id="stepCount">1 / 4 · 약 1분 30초 남음</div>
+        <div class="count" id="stepCount">1 / 4</div>
       </div>
       <div class="card">
         <!-- step 1 -->
@@ -493,15 +468,19 @@ main>section:not(.home){background:var(--bg);min-height:calc(100vh - var(--gnb-h
             <p class="msg" id="m-email" aria-live="polite"></p>
           </div>
           <div class="field fl" id="fw-pw">
-            <div class="inp has-tog"><input id="pw" type="password" autocomplete="new-password" placeholder=" " aria-describedby="rules m-pw"><label for="pw">암호</label><button type="button" class="tog" data-tog="pw">보기</button></div>
+            <div class="pwwrap">
+              <div class="inp has-tog"><input id="pw" type="password" autocomplete="new-password" placeholder=" " aria-describedby="pwtip m-pw"><label for="pw">암호</label><button type="button" class="tog" data-tog="pw">보기</button></div>
+              <div class="pwtip" id="pwtip" role="group" aria-label="암호 조건과 강도" hidden>
+                <ul class="rules" id="rules">
+                  <li data-r="len"><span class="dot"></span>8자 이상</li>
+                  <li data-r="upper"><span class="dot"></span>영문 대문자 포함</li>
+                  <li data-r="numsym"><span class="dot"></span>숫자 또는 특수문자 포함</li>
+                </ul>
+                <div class="meter" id="meter" data-l="0"><span>암호 강도</span><div class="bar" aria-hidden="true"><i id="meterFill"></i></div><b id="meterLbl" aria-live="polite">0%</b></div>
+              </div>
+            </div>
             <p class="caps" id="caps-pw" hidden>Caps Lock이 켜져 있어요</p>
-            <ul class="rules" id="rules">
-              <li data-r="len"><span class="dot"></span>8자 이상</li>
-              <li data-r="alpha"><span class="dot"></span>영문 포함</li>
-              <li data-r="numsym"><span class="dot"></span>숫자 또는 특수문자 포함</li>
-            </ul>
             <p class="msg" id="m-pw" aria-live="polite"></p>
-            <div class="meter" id="meter" data-l="0"><span>암호 강도</span><div class="bars"><i></i><i></i><i></i></div><b id="meterLbl">-</b></div>
           </div>
           <div class="field fl" id="fw-pw2">
             <div class="inp has-tog"><input id="pw2" type="password" autocomplete="new-password" placeholder=" " aria-describedby="m-pw2"><label for="pw2">암호 확인</label><button type="button" class="tog" data-tog="pw2">보기</button></div>
@@ -554,7 +533,7 @@ main>section:not(.home){background:var(--bg);min-height:calc(100vh - var(--gnb-h
           </div>
           <p class="group-err" id="codeErr" role="alert"></p>
           <div class="timer"><span>남은 시간 <b id="timer">03:00</b></span><button type="button" class="linkbtn" id="resend">코드 다시 보내기</button></div>
-          <div class="demo">프로토타입 안내: 인증 코드는 <b>123456</b>이에요. 6자리를 다 채우면 바로 확인해요.</div>
+          <div class="demo" id="demoNote" hidden>화면 미리보기 안내: 인증 코드는 <b>123456</b>이에요. 실제 메일은 보내지 않아요.</div>
           <div class="actions"><button class="btn btn-line" type="button" data-prev>이전</button><button class="btn btn-primary" type="submit">가입 완료</button></div>
         </form>
       </div>
@@ -568,21 +547,33 @@ main>section:not(.home){background:var(--bg);min-height:calc(100vh - var(--gnb-h
       <div class="card">
         <form id="resetForm" novalidate>
           <h1>암호를 재설정해요</h1>
-          <p class="sub">가입한 이메일을 입력하면 재설정 링크를 보내 드려요.</p>
+          <p class="sub">가입한 이메일을 입력하면 6자리 재설정 코드를 보내 드려요.</p>
           <div class="field fl" id="fw-remail">
             <div class="inp"><input id="remail" type="email" autocomplete="email" placeholder=" " aria-describedby="m-remail"><label for="remail">이메일</label></div>
             <p class="msg" id="m-remail" aria-live="polite"></p>
           </div>
-          <button class="btn btn-primary" type="submit">재설정 링크 보내기</button>
+          <button class="btn btn-primary" type="submit">재설정 코드 보내기</button>
         </form>
         <div class="reset-ok" id="resetDone" hidden role="status">
           <div class="done-mark"><svg><use href="#i-mail"/></svg></div>
           <h1>메일함을 확인해 주세요</h1>
-          <p class="sub"><b id="resetTo">-</b> 으로 가입한 계정이 있다면 재설정 링크를 보냈어요. 링크는 30분 동안 쓸 수 있어요.</p>
-          <div class="stack">
-            <button class="btn btn-line" type="button" id="resetAgain">링크 다시 보내기</button>
-            <button class="btn btn-primary" type="button" data-go="login">로그인으로 돌아가기</button>
-          </div>
+          <p class="sub"><b id="resetTo">-</b> 으로 가입한 계정이 있다면 6자리 코드를 보냈어요. 코드와 새 암호를 입력해 주세요.</p>
+          <form id="resetVerify" novalidate>
+            <div class="field fl" id="fw-rcode">
+              <div class="inp"><input id="rcode" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder=" " aria-describedby="m-rcode"><label for="rcode">6자리 코드</label></div>
+              <p class="msg" id="m-rcode" aria-live="polite"></p>
+            </div>
+            <div class="field fl" id="fw-rpw">
+              <div class="inp has-tog"><input id="rpw" type="password" autocomplete="new-password" placeholder=" " aria-describedby="h-rpw m-rpw"><label for="rpw">새 암호</label><button type="button" class="tog" data-tog="rpw">보기</button></div>
+              <p class="hint" id="h-rpw">8자 이상, 영문 대문자, 숫자 또는 특수문자를 포함해 주세요.</p>
+              <p class="msg" id="m-rpw" aria-live="polite"></p>
+            </div>
+            <div class="stack">
+              <button class="btn btn-primary" type="submit">암호 바꾸기</button>
+              <button class="btn btn-line" type="button" id="resetAgain">코드 다시 보내기</button>
+              <button class="btn btn-line" type="button" data-go="login">로그인으로 돌아가기</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -611,86 +602,68 @@ main>section:not(.home){background:var(--bg);min-height:calc(100vh - var(--gnb-h
 </main>
 <footer class="foot"><div class="wrap">
   <div>HJ전자 스토어는 회원가입 UX 연습용 가상의 서비스예요.</div>
-  <nav aria-label="약관 및 정책"><a href="#" data-toast="프로토타입에서는 제공하지 않아요">개인정보 처리방침</a><a href="#" data-toast="프로토타입에서는 제공하지 않아요">이용약관</a><a href="#" data-toast="프로토타입에서는 제공하지 않아요">판매 및 환불</a><a href="#" data-toast="프로토타입에서는 제공하지 않아요">사이트맵</a></nav>
+  <nav aria-label="약관 및 정책"><a href="#" data-toast="프로토타입에서는 제공하지 않아요">개인정보 처리방침</a><a href="#" data-toast="프로토타입에서는 제공하지 않아요">이용약관</a><a href="#" data-toast="프로토타입에서는 제공하지 않아요">판매 및 환불</a><a href="#" data-toast="프로토타입에서는 제공하지 않아요">사이트맵</a><a href="ux-notes.html">UX 개선 노트</a></nav>
   <div style="margin-top:10px">Copyright © 2026 HJ전자. All rights reserved.</div>
 </div></footer>
 </div>
 
-<aside class="notes" id="notes" aria-label="UX 개선 노트">
-  <div class="nh"><h2>UX 개선 노트</h2><span class="scr" id="noteScr">-</span></div>
-  <p class="lead">애플 가입 흐름에서 발견한 문제를 이 화면에서 어떻게 고쳤는지 정리했어요.</p>
-  <div id="noteList"></div>
-  <div class="jump"><h3>화면 바로가기</h3><div id="jump"></div></div>
-</aside>
-<button class="fab" id="fab" aria-controls="notes"><svg><use href="#i-note"/></svg><span id="fabLbl">UX 노트 숨기기</span></button>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
+<script src="supabase-config.js"></script>
 <script>
 (function(){
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const ICON={ok:'<svg><use href="#i-check"/></svg>',err:'<svg><use href="#i-alert"/></svg>'};
 const S={screen:'home',step:1,user:null,touched:{},last:null,eRes:{},mailSentTo:null,todo:{}};
+const DEMO=new URLSearchParams(location.search).has('demo'); // ux-notes.html의 "이 화면 보기" 링크: 서버 없이 화면만 보여 줌
 const DEMO_CODE='123456';
-const ACCTS={'hj@hj.com':{name:'김현주',pw:'Hj12345!'}}; // in-memory only; passwords are never written to storage
+
+/* ---------- backend: Supabase Auth ---------- */
+const CFG=window.HJ_SUPABASE||{};
+const sb=!DEMO&&window.supabase&&CFG.url&&CFG.key?window.supabase.createClient(CFG.url,CFG.key):null;
+const NOSB={error:{code:'no_backend',message:'backend not configured'}};
+const nameOf=u=>{const m=(u&&u.user_metadata)||{};return((m.last_name||'')+(m.first_name||'')).trim()||((u&&u.email)||'고객').split('@')[0];};
+function setUser(u){S.user=nameOf(u);$('#acctLbl').textContent=S.user+'님';}
+function authMsg(err){const c=(err&&err.code)||'',t=((err&&err.message)||'').toLowerCase();
+  if(c==='no_backend')return '서버에 연결하지 못했어요. supabase-config.js 설정을 확인해 주세요';
+  if(c==='over_email_send_rate_limit'||c==='over_request_rate_limit'||t.includes('rate limit')||t.includes('only request this after'))return '요청이 너무 잦아요. 잠시 뒤에 다시 시도해 주세요';
+  if(c==='invalid_credentials')return '이메일 또는 암호가 맞지 않아요';
+  if(c==='email_not_confirmed')return '이메일 인증을 아직 마치지 않았어요';
+  if(c==='weak_password')return '암호가 너무 약해요. 더 길고 다양한 문자로 만들어 주세요';
+  if(c==='same_password')return '이전과 같은 암호예요. 새 암호를 입력해 주세요';
+  if(c==='otp_expired')return '코드가 맞지 않거나 시간이 지났어요';
+  if(err&&(err.name==='AuthRetryableFetchError'||t.includes('failed to fetch')||t.includes('network')))return '네트워크 연결을 확인하고 다시 시도해 주세요';
+  return '문제가 생겼어요. 잠시 뒤에 다시 시도해 주세요';}
+const API={
+  async signUp(email,password,data){
+    if(DEMO)return {ok:true};if(!sb)return NOSB;
+    const {data:d,error}=await sb.auth.signUp({email,password,options:{data}});
+    if(error)return {error};
+    // 이미 가입한 이메일이면 Supabase는 오류 대신 identities가 빈 가짜 사용자를 돌려준다
+    if(d.user&&Array.isArray(d.user.identities)&&d.user.identities.length===0)return {exists:true};
+    return {ok:true};},
+  async resend(email){if(DEMO)return {ok:true};if(!sb)return NOSB;const {error}=await sb.auth.resend({type:'signup',email});return error?{error}:{ok:true};},
+  async verify(email,token){
+    if(DEMO)return token===DEMO_CODE?{ok:true}:{error:{code:'otp_expired'}};
+    if(!sb)return NOSB;
+    const {data,error}=await sb.auth.verifyOtp({email,token,type:'email'});
+    return error?{error}:{ok:true,user:data.user};},
+  async signIn(email,password){if(DEMO||!sb)return NOSB;const {data,error}=await sb.auth.signInWithPassword({email,password});return error?{error}:{ok:true,user:data.user};},
+  async signOut(){if(sb){try{await sb.auth.signOut()}catch(e){}}},
+  async resetSend(email){if(DEMO||!sb)return NOSB;const {error}=await sb.auth.resetPasswordForEmail(email);return error?{error}:{ok:true};},
+  async resetDo(email,token,password){
+    if(DEMO||!sb)return NOSB;
+    const v=await sb.auth.verifyOtp({email,token,type:'recovery'});if(v.error)return {error:v.error};
+    const u=await sb.auth.updateUser({password});if(u.error)return {error:u.error};
+    return {ok:true,user:u.data.user};}
+};
 const SCREENS=['home','login','signup','done','reset'];
 const STORE='hj-signup-draft';
 const DRAFT_IDS=['lname','fname','country','birth','email'];
-const FIELD_LEFT=['약 1분 30초 남음','약 1분 남음','약 40초 남음','거의 다 왔어요'];
 
-/* ---------- UX notes ---------- */
-const NOTES={
- home:{label:'01 스토어 메인',items:[
-  {p:'제이콥의 법칙 · 발견 가능성',t:'우측 상단에 "로그인 / 회원가입" 글자 노출',b:'GNB에 계정 진입점이 없고 쇼핑백 아이콘만 있음',a:'다른 쇼핑몰처럼 우측 상단에서 바로 찾을 수 있음'},
-  {p:'멘탈 모델 일치 · 닐슨 #2',t:'계정 메뉴와 장바구니 분리',b:'장바구니 안에 주문·계정·로그인 메뉴가 숨어 있음',a:'계정 아이콘을 누르면 로그인과 회원가입이 같은 크기 버튼으로 나옴'},
-  {p:'지연 가입',t:'히어로에 가입 혜택을 함께 노출',b:'가입해야 하는 이유를 알려주지 않음',a:'주문 조회·관심 목록 등 얻는 가치를 먼저 보여 줌'}]},
- login:{label:'02 로그인',items:[
-  {p:'맥락 일치',t:'제목을 "HJ 계정으로 로그인"으로',b:'"더욱 빠르게 결제하시려면…" 결제 문구가 가장 큼',a:'가입하러 온 사람에게도 맞는 중립적 제목'},
-  {p:'점진적 공개 · 애플 로그인 흐름',t:'이메일 → 암호 2단계, 패스키 로그인',b:'—',a:'이메일을 확인한 뒤 암호 칸이 열리고, 패스키로 암호 없이 들어갈 수 있음 (hj@hj.com / Hj12345!)'},
-  {p:'시각적 위계 · 피츠의 법칙',t:'"새 계정 만들기"를 로그인과 같은 크기 버튼으로',b:'작은 텍스트 링크 + ↗ 아이콘(외부 이동 신호)',a:'같은 사이트 안에서 이동, 버튼이라 누르기 쉬움'},
-  {p:'오류 복구 · 닐슨 #9',t:'미가입 이메일이면 그 자리에서 가입 제안, 5회 실패 시 재설정 안내',b:'—',a:'입력한 이메일을 가입 폼에 그대로 이어 주고, 틀린 암호는 남은 횟수와 함께 알려 줌'}]},
- s1:{label:'03 가입 1단계',items:[
-  {p:'일관성 · 닐슨 #4 / 사용자 통제 · #3',t:'스토어 헤더 유지 + "쇼핑 계속하기"',b:'다른 사이트(account)로 넘어가고 돌아갈 길이 없음',a:'같은 사이트 안에서 진행, 언제든 쇼핑으로 복귀'},
-  {p:'점진적 공개 · 목표 기울기 효과',t:'4단계로 나누고 진행 막대 + 남은 시간',b:'긴 단일 폼, 끝이 어디인지 모름',a:'한 화면에 2~3개 입력만, 진행 상황이 보임'},
-  {p:'효율성 · 닐슨 #7',t:'성/이름 분리, 생년월일 한 칸 숫자 입력',b:'연/월/일 드롭다운 3개, 연도는 긴 스크롤',a:'19950312만 쳐도 1995.03.12로 자동 변환'},
-  {p:'인식 > 기억 · 닐슨 #6',t:'떠 있는 라벨(플로팅 라벨)로 입력 중에도 칸 이름 유지',b:'플레이스홀더가 라벨 역할, 이유는 ? 아이콘 안',a:'입력하면 라벨이 작아져 위로 올라가고, 예시와 수집 이유는 칸 아래에 항상 보임'},
-  {p:'사용자 통제 · 닐슨 #3',t:'새로고침·뒤로 가기에도 입력 유지',b:'—',a:'주소가 단계별로 바뀌어 뒤로 가기가 이전 단계로 가고, 입력값은 탭을 닫기 전까지 보존 (암호는 저장 안 함)'}]},
- s2:{label:'04 가입 2단계',items:[
-  {p:'시각적 방해 제거',t:'암호 조건을 필드 아래에 고정',b:'툴팁이 위쪽 입력칸을 가림',a:'다른 입력값을 가리지 않음'},
-  {p:'인지 부하 · 밀러의 법칙',t:'조건 5개 → 3개로 줄이고 강도 막대로 보완',b:'대·소문자·숫자·특수문자 모두 필요',a:'기억 가능한 암호를 만들기 쉬움'},
-  {p:'오류 예방 · 닐슨 #5',t:'흔한 암호, 이메일·이름이 든 암호 차단, Caps Lock 경고',b:'조건만 맞으면 password1 같은 암호도 통과',a:'"너무 흔한 암호예요"처럼 이유를 알려 주고, 대문자 잠금 상태도 알려 줌 (password1 입력해 보기)'},
-  {p:'시스템 상태 가시성 · 닐슨 #1',t:'이메일 중복 확인 중 표시와 실패 시 안내',b:'확인 중인지 알 수 없음',a:'"확인하는 중…" 표시. 확인이 실패해도 막지 않고 마지막에 다시 확인 (hj@hj.com, error@hj.com 입력해 보기)'},
-  {p:'사용자 통제',t:'암호 보기 토글',b:'입력한 암호를 확인할 방법 없음',a:'오타를 직접 확인 가능'}]},
- s3:{label:'05 가입 3단계',items:[
-  {p:'제이콥의 법칙',t:'맨 위에 "전체 동의"',b:'체크박스 5개를 하나씩 눌러야 함',a:'국내 사용자에게 익숙한 한 번 동의'},
-  {p:'그룹화 · 시각적 위계',t:'필수를 위, 선택을 아래로 묶고 [필수]/[선택] 태그',b:'선택(마케팅)이 위, 필수 여부는 긴 문장 한 줄로만 안내',a:'무엇을 꼭 체크해야 하는지 바로 구분'},
-  {p:'점진적 공개',t:'약관 상세는 "보기"로 펼치기',b:'긴 설명이 모두 펼쳐져 읽기 피로',a:'필요한 사람만 열어 봄'},
-  {p:'오류 예방',t:'필수 진행 수(0/3) 표시, 빠진 항목만 빨갛게',b:'누락은 제출 후에야 알 수 있음',a:'어느 항목이 빠졌는지 정확히 보임'}]},
- s4:{label:'06 가입 4단계',items:[
-  {p:'오류 예방 · 오류 복구',t:'시도 5회 제한, 재전송 30초 간격·최대 3회',b:'—',a:'틀린 코드는 남은 횟수와 함께 알려 주고, 잠기면 새 코드를 받아 이어서 진행'},
-  {p:'효율성',t:'6칸 코드 입력, 자동 다음 칸 이동, 붙여넣기 지원, 자동 확인',b:'—',a:'메일에서 복사한 코드를 한 번에 붙여 넣으면 바로 가입 완료'},
-  {p:'사용자 통제 · 오류 복구',t:'"이메일 수정"과 재전송 타이머',b:'—',a:'이메일을 잘못 쓴 경우 2단계로 바로 돌아가고, 바꾼 이메일로 새 코드를 보냄'}]},
- done:{label:'07 가입 완료',items:[
-  {p:'사용자 통제 · 닐슨 #3',t:'"보던 화면으로 돌아가기"',b:'가입 후 스토어로 돌아오는 안내 없음',a:'원래 하던 쇼핑으로 바로 복귀'},
-  {p:'시스템 상태 가시성',t:'헤더에 "○○님" 표시, 가입 내역 요약',b:'—',a:'로그인 상태와 인증한 이메일, 선택한 설정을 바로 확인'},
-  {p:'점진적 공개',t:'다음에 하면 좋은 일 3가지',b:'—',a:'패스키 만들기, 2단계 인증, 배송지 등록을 한 번에 안내하되 건너뛸 수 있음'}]},
- reset:{label:'08 암호 재설정',items:[
-  {p:'보안 · 계정 존재 노출 방지',t:'"가입한 계정이 있다면 링크를 보냈어요"',b:'—',a:'가입 여부를 알려 주지 않아 이메일 수집 공격을 막음'},
-  {p:'오류 복구 · 닐슨 #9',t:'링크 다시 보내기, 로그인으로 돌아가기',b:'—',a:'메일이 안 와도 막히지 않고 다음 행동이 보임'}]}
-};
-function noteKey(){return S.screen==='signup'?'s'+S.step:S.screen}
-function renderNotes(){
-  const n=NOTES[noteKey()];
-  $('#noteScr').textContent=n.label;
-  $('#noteList').innerHTML=n.items.map(i=>`<div class="note"><div class="p">${i.p}</div><b>${i.t}</b><div class="ba"><span>기존</span><span>${i.b}</span><span>개선</span><span>${i.a}</span></div></div>`).join('');
-  $('#jump').innerHTML=Object.entries(NOTES).map(([k,v])=>`<button data-j="${k}" class="${k===noteKey()?'on':''}">${v.label.slice(3)}</button>`).join('');
-}
-$('#jump').addEventListener('click',e=>{const k=e.target.dataset.j;if(!k)return;
-  if(k[0]==='s'&&k.length===2){fillDemoUntil(+k[1]);S.screen='signup';S.step=+k[1];push();render(true);}
-  else if(k==='done'){demoDone();go('done');}
-  else go(k);});
 function fillDemoUntil(n){ // jump helper: fill earlier steps with sample data so later steps make sense
   const set=(id,v)=>{if(!$('#'+id).value)$('#'+id).value=v};
   if(n>1){set('lname','김');set('fname','하준');set('birth','1995.03.12');}
-  if(n>2){set('email','hajun@example.com');if(!$('#pw').value){$('#pw').value='nova2026!';$('#pw2').value='nova2026!';pwUpdate();}}
+  if(n>2){set('email','hajun@example.com');if(!$('#pw').value){$('#pw').value='Nova2026!';$('#pw2').value='Nova2026!';pwUpdate();}}
   if(n>3){['ag1','ag2','ag3'].forEach(id=>$('#'+id).checked=true);syncAgree();}
   save();
 }
@@ -711,7 +684,7 @@ function readHash(){
   if(s==='signup'){const want=m&&m[2]?+m[2]:S.step;S.step=reach(Math.min(Math.max(want,1),4),true);}
 }
 function save(){try{
-  const d={user:S.user,v:{},ag:{}};
+  const d={v:{},ag:{}}; // 로그인 상태는 Supabase 세션이 관리하므로 저장하지 않는다
   DRAFT_IDS.forEach(id=>d.v[id]=$('#'+id).value);
   ['ag1','ag2','ag3','ag4','ag5'].forEach(id=>d.ag[id]=$('#'+id).checked);
   sessionStorage.setItem(STORE,JSON.stringify(d));}catch(e){}}
@@ -719,7 +692,6 @@ function load(){try{
   const d=JSON.parse(sessionStorage.getItem(STORE)||'null');if(!d)return;
   DRAFT_IDS.forEach(id=>{if(d.v&&d.v[id]!=null)$('#'+id).value=d.v[id]});
   Object.keys(d.ag||{}).forEach(id=>$('#'+id).checked=!!d.ag[id]);
-  if(d.user){S.user=d.user;$('#acctLbl').textContent=d.user+'님';}
   syncAgree();}catch(e){}}
 document.addEventListener('input',e=>{if(e.target.closest('.card'))save()});
 document.addEventListener('change',e=>{if(e.target.closest('.card'))save()});
@@ -744,17 +716,17 @@ function render(focus){
     const n=S.step;
     $$('form[data-step]').forEach(f=>f.hidden=+f.dataset.step!==n);
     $$('#stepList li').forEach((li,i)=>{li.className=i+1<n?'done':i+1===n?'now':'';});
-    $('#stepCount').textContent=n+' / 4 · '+FIELD_LEFT[n-1];
+    $('#stepCount').textContent=n+' / 4';
     if(n===4){const em=$('#email').value.trim();$('#mailTo').textContent=em;
-      if(S.mailSentTo!==em){S.mailSentTo=em;vEmail.reset();vEmail.send();}}
+      if(S.mailSentTo!==em){vEmail.reset();startSignup(em);}}
   }
-  renderNotes();window.scrollTo(0,0);
+  window.scrollTo(0,0);
   if(focus){if(S.screen==='signup'&&S.step===4&&!vEmail.ok){setTimeout(()=>vEmail.otp.focus(),50);$('#live').textContent='4 / 4단계. '+$('form[data-step="4"] h1').textContent;}else focusHeading();}
 }
 function go(screen){
   S.screen=screen;
   if(screen==='login')loginReset();
-  if(screen==='reset'){$('#resetForm').hidden=false;$('#resetDone').hidden=true;$('#remail').value=$('#lemail').value;setMsg('remail','','');}
+  if(screen==='reset'){$('#resetForm').hidden=false;$('#resetDone').hidden=true;$('#rcode').value='';$('#rpw').value='';setMsg('rcode','','');setMsg('rpw','','');$('#remail').value=$('#lemail').value;setMsg('remail','','');}
   if(screen==='signup')S.step=reach(S.step);
   push();render(true);save();
 }
@@ -768,7 +740,6 @@ document.addEventListener('click',e=>{
     if(t==='signup'&&S.screen!=='signup'&&reach(S.step)>1)toast('작성하던 곳에서 이어서 해요');
     go(t);return;}
   const t=e.target.closest('[data-toast]');if(t){e.preventDefault();toast(t.dataset.toast);return;}
-  if(e.target.closest('[data-retry-email]')){delete S.eRes[$('#email').value.trim().toLowerCase()];checkEmail(true);return;}
   if(!e.target.closest('.pop')&&!e.target.closest('#acctBtn')&&!e.target.closest('#cartBtn'))closePops();
 });
 document.addEventListener('focusin',e=>{ // keep the field above the on-screen keyboard
@@ -784,7 +755,7 @@ function acctMenu(){
    <ul><li><button data-go="login"><svg><use href="#i-box"/></svg>주문 조회</button></li><li><button data-go="login"><svg><use href="#i-heart"/></svg>관심 목록</button></li></ul>`;
 }
 $('#acctBtn').addEventListener('click',()=>{const p=$('#acctPop');const open=p.hidden;closePops();if(open){p.innerHTML=acctMenu();p.hidden=false;$('#acctBtn').setAttribute('aria-expanded','true');
-  const lo=$('#logout');if(lo)lo.onclick=()=>{S.user=null;$('#acctLbl').innerHTML='로그인<span class="lbl-long"> / 회원가입</span>';closePops();save();toast('로그아웃했어요');};}});
+  const lo=$('#logout');if(lo)lo.onclick=()=>{API.signOut();S.user=null;$('#acctLbl').innerHTML='로그인<span class="lbl-long"> / 회원가입</span>';closePops();save();toast('로그아웃했어요');};}});
 $('#cartBtn').addEventListener('click',()=>{const p=$('#cartPop');const open=p.hidden;closePops();p.hidden=!open;});
 
 /* ---------- field helpers ---------- */
@@ -818,45 +789,45 @@ function check(f,force){
 $('#birth').addEventListener('input',e=>{const d=e.target.value.replace(/\D/g,'').slice(0,8);let o=d;
   if(d.length>4)o=d.slice(0,4)+'.'+d.slice(4);if(d.length>6)o=d.slice(0,4)+'.'+d.slice(4,6)+'.'+d.slice(6);e.target.value=o;if(S.touched.birth)check('birth');});
 
-/* email: syntax check, then a (simulated) availability lookup */
-const eReq={};
-function emailLookup(k){return eReq[k]||(eReq[k]=new Promise(res=>setTimeout(()=>{delete eReq[k];res(/^error@/.test(k)?'error':ACCTS[k]?'taken':'free')},700)));}
+/* email: syntax check only. Supabase doesn't tell us up front whether an address is taken;
+   that is detected when the code is requested (see startSignup) and remembered in S.eRes. */
 function checkEmail(force){
   const el=$('#email'),v=el.value;if(force)S.touched.email=true;if(!S.touched.email)return true;
   const r=V.email(v);if(r){setMsg('email','err',r);return false;}
-  const k=v.trim().toLowerCase(),st=S.eRes[k];
-  if(st==='taken'){setMsg('email','err','이미 가입된 이메일이에요. <button type="button" class="linkbtn" data-go="login">로그인하기</button>');return false;}
-  if(st==='free'){setMsg('email','ok','사용할 수 있는 이메일이에요');return true;}
-  if(st==='error'){setMsg('email','warn','지금은 중복 확인을 못 했어요. 계속해도 가입 마지막에 다시 확인해요. <button type="button" class="linkbtn" data-retry-email>다시 확인</button>');return true;}
-  setMsg('email','busy','이메일을 확인하는 중…');
-  emailLookup(k).then(res=>{S.eRes[k]=res;if($('#email').value.trim().toLowerCase()===k)checkEmail();});
-  return 'pending';
+  if(S.eRes[v.trim().toLowerCase()]==='taken'){setMsg('email','err','이미 가입된 이메일이에요. <button type="button" class="linkbtn" data-go="login">로그인하기</button>');return false;}
+  setMsg('email','','');return true;
 }
 $('#email').addEventListener('blur',()=>{if($('#email').value)S.touched.email=true;checkEmail();if($('#pw').value)pwUpdate();});
 $('#email').addEventListener('input',()=>{if(S.touched.email)checkEmail();});
 
 /* ---------- password ---------- */
-const RULES={len:v=>v.length>=8,alpha:v=>/[a-zA-Z]/.test(v),numsym:v=>/[\d\W_]/.test(v)};
+const RULES={len:v=>v.length>=8,upper:v=>/[A-Z]/.test(v),numsym:v=>/[\d\W_]/.test(v)};
 const COMMON=['12345678','123456789','1234567890','password','password1','password123','qwerty123','11111111','iloveyou','abc12345','asdf1234','admin123','1q2w3e4r','qwertyuiop','a1234567','abcd1234'];
 function pwProblem(v){if(!v)return null;const low=v.toLowerCase();
   if(COMMON.includes(low)||/^(.)\1+$/.test(v))return '너무 흔한 암호예요. 다른 암호를 써 주세요';
   const local=$('#email').value.split('@')[0].toLowerCase();if(local.length>=3&&low.includes(local))return '이메일 주소가 들어간 암호는 쉽게 뚫려요';
   const nm=($('#lname').value+$('#fname').value).trim().toLowerCase();if(nm.length>=2&&low.includes(nm))return '이름이 들어간 암호는 쉽게 뚫려요';
   if(/(.)\1{3,}/.test(v))return '같은 글자를 4번 이상 반복하지 마세요';return null;}
+const RULE_N=Object.keys(RULES).length;
 function rulesOk(){const v=$('#pw').value;return Object.values(RULES).every(r=>r(v))}
 function pwOk(){return rulesOk()&&!pwProblem($('#pw').value)}
+function pwScore(v,prob,ro){ // 0-100: 길이(최대 40) + 문자 종류 4가지 x 15, 조건 미충족이면 39 이하, 흔한 암호면 20 이하
+  if(!v)return 0;
+  let sc=Math.min(40,v.length*4)+(/[a-z]/.test(v)?15:0)+(/[A-Z]/.test(v)?15:0)+(/\d/.test(v)?15:0)+(/[^A-Za-z0-9]/.test(v)?15:0);
+  if(!ro)sc=Math.min(sc,39);
+  if(prob)sc=Math.min(sc,20);
+  return Math.min(100,sc);}
 function pwUpdate(){
   const v=$('#pw').value;let met=0;
   $$('#rules li').forEach(li=>{const ok=RULES[li.dataset.r](v);if(ok)met++;
     li.classList.toggle('met',ok);li.classList.toggle('miss',!ok&&S.touched.pw);
     li.querySelector('.dot,svg').outerHTML=ok?'<svg><use href="#i-check"/></svg>':'<span class="dot"></span>';});
-  const prob=pwProblem(v),ro=met===3;
-  const m=$('#meter');let l=0,lbl='-';
-  if(v){if(prob&&ro){l=1;lbl='추측하기 쉬워요';}
-    else if(met<3){l=1;lbl='조건 '+met+'/3';}else if(v.length<12){l=2;lbl='사용 가능';}else{l=3;lbl='매우 안전';}
-    if(!prob&&met===3&&/[A-Z]/.test(v)&&/[a-z]/.test(v)&&/\d/.test(v)&&/[\W_]/.test(v)){l=3;lbl='매우 안전';}}
-  m.dataset.l=l;$('#meterLbl').textContent=lbl;
-  if(ro&&prob)setMsg('pw','err',prob);else setMsg('pw',S.touched.pw&&!ro?'err':'','');
+  const prob=pwProblem(v),ro=met===RULE_N;
+  const pct=pwScore(v,prob,ro),m=$('#meter');
+  const l=pct>=70?3:pct>=40?2:1;
+  const word=!v?'':prob&&ro?'추측하기 쉬워요':pct>=90?'매우 강함':pct>=70?'강함':pct>=40?'보통':'약함';
+  m.dataset.l=v?l:0;$('#meterFill').style.width=pct+'%';$('#meterLbl').textContent=v?pct+'% '+word:'0%';
+  if(ro&&prob)setMsg('pw','err',prob);else setMsg('pw',S.touched.pw&&!ro?'err':'',S.touched.pw&&!ro?'암호 조건을 모두 맞춰 주세요':'');
   if(S.touched.pw2)checkPw2();
 }
 function checkPw2(force){if(force)S.touched.pw2=true;if(!S.touched.pw2)return true;
@@ -864,8 +835,11 @@ function checkPw2(force){if(force)S.touched.pw2=true;if(!S.touched.pw2)return tr
   if(!b){setMsg('pw2','err','암호를 한 번 더 입력해 주세요');return false;}
   if(a!==b){setMsg('pw2','err','암호가 일치하지 않아요');return false;}
   setMsg('pw2','ok','암호가 일치해요');return true;}
-$('#pw').addEventListener('input',pwUpdate);
-$('#pw').addEventListener('blur',()=>{if($('#pw').value){S.touched.pw=true;pwUpdate();}});
+const tip=$('#pwtip');
+$('#pw').addEventListener('input',()=>{tip.hidden=false;pwUpdate();});
+$('#pw').addEventListener('focus',()=>{tip.hidden=false;pwUpdate();});
+$('#pw').addEventListener('keydown',e=>{if(e.key==='Escape')tip.hidden=true;});
+$('#pw').addEventListener('blur',()=>{tip.hidden=true;if($('#pw').value){S.touched.pw=true;pwUpdate();}});
 $('#pw2').addEventListener('blur',()=>{if($('#pw2').value)checkPw2(true)});
 $('#pw2').addEventListener('input',()=>{if(S.touched.pw2||$('#pw2').value.length>=$('#pw').value.length&&$('#pw2').value)checkPw2(true)});
 $$('[data-tog]').forEach(b=>b.addEventListener('click',()=>{const i=$('#'+b.dataset.tog);const show=i.type==='password';i.type=show?'text':'password';b.textContent=show?'숨기기':'보기';}));
@@ -883,7 +857,6 @@ $('form[data-step="1"]').addEventListener('submit',e=>{e.preventDefault();
 $('form[data-step="2"]').addEventListener('submit',async e=>{e.preventDefault();
   S.touched.pw=true;pwUpdate();
   let em=checkEmail(true);
-  if(em==='pending'){await emailLookup($('#email').value.trim().toLowerCase()).then(r=>{S.eRes[$('#email').value.trim().toLowerCase()]=r});em=checkEmail(true);}
   const ok=[em,pwOk(),checkPw2(true)].every(Boolean);
   if(!ok){focusFirstErr();$('#live').textContent='입력을 확인해 주세요';return;}setStep(3);});
 
@@ -927,33 +900,60 @@ function makeVerifier(o){
     if(v.sends>=3){r.disabled=true;r.textContent='재전송 횟수를 모두 썼어요';}
     else if(v.cool>0){r.disabled=true;r.textContent=v.cool+'초 후 다시 받기';}
     else{r.disabled=false;r.textContent=o.resendLabel;}};
-  v.send=()=>{v.sends++;clearInterval(v.t);v.left=180;v.cool=30;v.tries=0;v.otp.clear();v.otp.error('');v.otp.unlock();paint();
+  v.paint=paint;
+  v.send=()=>{v.sends++;clearInterval(v.t);v.left=180;v.cool=60;v.tries=0;v.otp.clear();v.otp.error('');v.otp.unlock();paint();
     v.t=setInterval(()=>{v.left--;if(v.cool>0)v.cool--;paint();if(v.left<=0)clearInterval(v.t);},1000);};
-  v.reset=()=>{clearInterval(v.t);v.sends=0;v.tries=0;v.ok=false;v.otp.clear();v.otp.error('');v.otp.unlock();};
-  v.verify=code=>{
-    if(v.ok)return;
+  v.reset=()=>{clearInterval(v.t);v.sends=0;v.tries=0;v.left=0;v.cool=0;v.busy=false;v.ok=false;v.otp.clear();v.otp.error('');v.otp.unlock();paint();};
+  v.verify=async code=>{
+    if(v.ok||v.busy)return;
     if(v.left<=0){v.otp.error('코드 유효 시간이 지났어요. "다시 받기"를 눌러 주세요.');return;}
-    if(code!==DEMO_CODE){v.tries++;const rest=5-v.tries;
-      v.otp.clear();
-      if(rest<=0){v.otp.error('5번 틀려서 잠겼어요. 새 코드를 받아 주세요.');v.otp.lock();}
-      else{v.otp.error('코드가 맞지 않아요. 남은 시도 '+rest+'회');v.otp.focus();}
-      return;}
-    v.ok=true;clearInterval(v.t);v.otp.lock();o.onOk();};
-  o.resendBtn.addEventListener('click',()=>{if(v.sends>=3||v.cool>0)return;v.send();toast('새 코드를 보냈어요');v.otp.focus();});
+    v.busy=true;v.otp.lock();v.otp.error('');
+    const r=await o.check(code);
+    v.busy=false;
+    if(r.ok){v.ok=true;clearInterval(v.t);v.otp.lock();o.onOk(r);return;}
+    v.otp.unlock();v.otp.clear();
+    const c=(r.error&&r.error.code)||'';
+    if(c!=='otp_expired'&&c!=='validation_failed'){v.otp.error(authMsg(r.error));v.otp.focus();return;} // 네트워크·요청 한도 오류는 시도 횟수에 넣지 않는다
+    v.tries++;const rest=5-v.tries;
+    if(rest<=0){v.otp.error('5번 틀려서 잠겼어요. 새 코드를 받아 주세요.');v.otp.lock();}
+    else{v.otp.error('코드가 맞지 않거나 시간이 지났어요. 남은 시도 '+rest+'회');v.otp.focus();}};
+  o.resendBtn.addEventListener('click',async()=>{if(v.sends>=3||v.cool>0||v.busy)return;
+    v.busy=true;const r=await o.resend();v.busy=false;
+    if(r.handled)return;
+    if(r.error){v.otp.error(authMsg(r.error));return;}
+    v.send();toast('새 코드를 보냈어요');v.otp.focus();});
   return v;}
 
 
 /* email step */
-const vEmail=makeVerifier({root:$('#code'),errEl:$('#codeErr'),timerEl:$('#timer'),resendBtn:$('#resend'),resendLabel:'코드 다시 보내기',onOk(){finishSignup();}});
+const vEmail=makeVerifier({root:$('#code'),errEl:$('#codeErr'),timerEl:$('#timer'),resendBtn:$('#resend'),resendLabel:'코드 다시 보내기',
+  check:code=>API.verify($('#email').value.trim(),code),
+  resend:async()=>{const em=$('#email').value.trim();
+    if(S.signedUp!==em){await startSignup(em);return {handled:true};} // 첫 발송이 실패했다면 가입부터 다시 시도
+    return API.resend(em);},
+  onOk(r){finishSignup(r&&r.user);}});
+const toIso=v=>{const m=(v||'').match(/^(\d{4})\.(\d{2})\.(\d{2})$/);return m?m[1]+'-'+m[2]+'-'+m[3]:'';};
+async function startSignup(em){ // 3단계 약관 동의를 마친 뒤 4단계에 들어올 때 계정을 만들고 인증 코드를 보낸다
+  S.mailSentTo=em;S.signedUp=null;vEmail.busy=true;vEmail.otp.lock();
+  $('#codeErr').innerHTML='<span class="spin"></span><span>코드를 보내는 중…</span>';
+  const r=await API.signUp(em,$('#pw').value,{
+    last_name:$('#lname').value.trim(),first_name:$('#fname').value.trim(),birth_date:toIso($('#birth').value),country:$('#country').value,
+    consent_privacy:$('#ag1').checked,consent_third_party:$('#ag2').checked,consent_overseas:$('#ag3').checked,
+    marketing_email:$('#ag4').checked,marketing_app:$('#ag5').checked});
+  vEmail.busy=false;
+  if(S.mailSentTo!==em)return; // 기다리는 사이 이메일을 바꿨다면 이 응답은 버린다
+  vEmail.otp.error('');
+  if(r.exists){S.eRes[em.toLowerCase()]='taken';S.mailSentTo=null;setStep(2);checkEmail(true);$('#email').focus();return;}
+  if(r.error){S.mailSentTo=null;vEmail.otp.unlock();vEmail.otp.error(authMsg(r.error)+'. "코드 다시 보내기"를 눌러 주세요.');vEmail.paint();return;}
+  S.signedUp=em;vEmail.otp.unlock();vEmail.send();vEmail.otp.focus();}
 $('#editMail').addEventListener('click',()=>{setStep(2);$('#email').focus();$('#email').select();});
 $('form[data-step="4"]').addEventListener('submit',e=>{e.preventDefault();
   const c=vEmail.otp.value();
   if(c.length<6){vEmail.otp.error((6-c.length)+'자리가 더 필요해요.');vEmail.otp.focus();return;}
   vEmail.verify(c);});
 
-function finishSignup(){
-  const nm=($('#lname').value+$('#fname').value).trim()||'고객',em=$('#email').value.trim();
-  ACCTS[em.toLowerCase()]={name:nm,pw:$('#pw').value};
+function finishSignup(user){
+  const nm=($('#lname').value+$('#fname').value).trim()||(user?nameOf(user):'고객'),em=$('#email').value.trim();
   const mk=[$('#ag4').checked&&'신제품·이벤트',$('#ag5').checked&&'서비스 업데이트'].filter(Boolean);
   S.last={name:nm,email:em,mkt:mk.length?mk.join(', '):'받지 않음'};
   S.user=nm;$('#acctLbl').textContent=nm+'님';
@@ -962,7 +962,7 @@ function finishSignup(){
 function resetSignup(){
   [...DRAFT_IDS,'pw','pw2'].forEach(id=>{const el=$('#'+id);if(el.tagName!=='SELECT')el.value='';});
   all.forEach(id=>$('#'+id).checked=false);syncAgree();
-  S.touched={};S.step=1;S.mailSentTo=null;
+  S.touched={};S.step=1;S.mailSentTo=null;S.signedUp=null;
   vEmail.reset();
   ['lname','fname','birth','email','pw','pw2'].forEach(f=>setMsg(f,'',''));pwUpdate();
   try{sessionStorage.removeItem(STORE)}catch(e){}
@@ -981,61 +981,87 @@ function fillDone(){const l=S.last;
   S.todo={};renderTodo();}
 $('#todo').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
   const x=TODOS.find(t=>t.k===b.closest('.it').dataset.todo);
-  if(x.k==='addr'){toast('프로토타입에서는 배송지 화면을 제공하지 않아요');return;}
-  b.disabled=true;b.textContent='진행 중…';
-  setTimeout(()=>{S.todo[x.k]=true;renderTodo();toast(x.ok);},x.k==='passkey'?900:500);});
+  toast('아직 준비 중인 기능이에요');});
 $('#toSettings').addEventListener('click',()=>toast('프로토타입에서는 설정 화면을 제공하지 않아요'));
 
 /* ---------- login ---------- */
 let lstep=1,lfails=0;
 function loginReset(){lstep=1;lfails=0;
   $('#fw-lpw').hidden=true;$('#lEdit').hidden=true;$('#lemail').readOnly=false;$('#lpw').value='';
-  $('#loginBtn').textContent='계속';$('#loginBtn').disabled=false;$('#passkeyBtn').hidden=true;$('#loginDemo').hidden=true;
-  $('#loginSub').textContent='계정이 없다면 아래에서 바로 만들 수 있어요.';setMsg('lemail','','');setMsg('lpw','','');}
+  $('#loginBtn').textContent='계속';$('#loginBtn').disabled=false;  $('#loginSub').textContent='계정이 없다면 아래에서 바로 만들 수 있어요.';setMsg('lemail','','');setMsg('lpw','','');}
 function loginOk(name){S.user=name;$('#acctLbl').textContent=name+'님';save();toast(name+'님, 환영해요');go('home');}
 $('#lEdit').addEventListener('click',()=>{const v=$('#lemail').value;loginReset();$('#lemail').value=v;$('#lemail').focus();});
-$('#loginForm').addEventListener('submit',e=>{e.preventDefault();
+$('#loginForm').addEventListener('submit',async e=>{e.preventDefault();
   if(lstep===1){
     const v=$('#lemail').value.trim(),bad=t=>{setMsg('lemail','err',t);$('#lemail').focus();};
     if(!v)return bad('이메일을 입력해 주세요');
     if(!EMAIL_RE.test(v))return bad('이메일 형식을 확인해 주세요. 예: name@example.com');
-    const acct=ACCTS[v.toLowerCase()];
-    if(!acct){setMsg('lemail','err','이 이메일로 가입된 계정이 없어요. <button type="button" class="linkbtn" id="signWith">이 이메일로 가입하기</button>');
-      $('#signWith').onclick=()=>{$('#email').value=v;S.touched.email=false;S.step=1;go('signup');};return;}
+    // 가입 여부는 미리 알려 주지 않는다(이메일 수집 공격 방지). 로그인에 실패했을 때 일반 문구로만 안내한다.
     setMsg('lemail','','');lstep=2;
     $('#lemail').readOnly=true;$('#lEdit').hidden=false;$('#fw-lpw').hidden=false;$('#loginBtn').textContent='로그인';
-    $('#passkeyBtn').hidden=false;$('#loginDemo').hidden=v.toLowerCase()!=='hj@hj.com';
-    $('#loginSub').textContent=acct.name+'님, 암호를 입력해 주세요.';$('#lpw').focus();return;}
-  const acct=ACCTS[$('#lemail').value.trim().toLowerCase()],p=$('#lpw').value;
+    $('#loginSub').textContent='암호를 입력해 주세요.';$('#lpw').focus();return;}
+  const em=$('#lemail').value.trim(),p=$('#lpw').value,btn=$('#loginBtn');
   if(!p){setMsg('lpw','err','암호를 입력해 주세요');$('#lpw').focus();return;}
-  if(p===acct.pw){setMsg('lpw','','');return loginOk(acct.name);}
+  btn.disabled=true;btn.textContent='로그인 중…';
+  const r=await API.signIn(em,p);
+  btn.disabled=false;btn.textContent='로그인';
+  if(r.ok){setMsg('lpw','','');return loginOk(nameOf(r.user));}
+  const code=(r.error&&r.error.code)||'';
+  if(code==='email_not_confirmed'){setMsg('lpw','err','이메일 인증을 아직 마치지 않았어요. <button type="button" class="linkbtn" id="signWith">가입을 이어서 하기</button>');
+    $('#signWith').onclick=()=>{$('#email').value=em;S.touched.email=false;S.step=1;go('signup');};return;}
+  if(code!=='invalid_credentials'){setMsg('lpw','err',authMsg(r.error));return;}
   lfails++;
   if(lfails>=5){setMsg('lpw','err','시도 횟수를 넘었어요. <button type="button" class="linkbtn" data-go="reset">암호 재설정</button>으로 계속해 주세요.');$('#loginBtn').disabled=true;return;}
-  setMsg('lpw','err','암호가 맞지 않아요. 남은 시도 '+(5-lfails)+'회');$('#lpw').select();
+  setMsg('lpw','err','이메일 또는 암호가 맞지 않아요. 남은 시도 '+(5-lfails)+'회');$('#lpw').select();
 });
-$('#passkeyBtn').addEventListener('click',()=>{const b=$('#passkeyBtn'),acct=ACCTS[$('#lemail').value.trim().toLowerCase()];
-  b.disabled=true;b.textContent='이 기기에서 확인하는 중…';
-  setTimeout(()=>{b.disabled=false;b.innerHTML='<svg style="width:18px;height:18px"><use href="#i-key"/></svg>패스키로 로그인';loginOk(acct.name);},900);});
 $$('[data-social]').forEach(b=>b.addEventListener('click',()=>toast('프로토타입에서는 이메일 가입만 체험할 수 있어요')));
 
 /* ---------- reset ---------- */
-$('#resetForm').addEventListener('submit',e=>{e.preventDefault();
-  const v=$('#remail').value.trim(),r=V.email(v);
+let resetEmail='';
+$('#resetForm').addEventListener('submit',async e=>{e.preventDefault();
+  const v=$('#remail').value.trim(),r=V.email(v),btn=e.target.querySelector('[type=submit]');
   if(r){setMsg('remail','err',r);$('#remail').focus();return;}
-  setMsg('remail','','');$('#resetTo').textContent=v;$('#resetForm').hidden=true;$('#resetDone').hidden=false;
-  $('#live').textContent='재설정 링크를 보냈어요';$('#resetDone h1').setAttribute('tabindex','-1');$('#resetDone h1').focus();});
-$('#resetAgain').addEventListener('click',()=>toast('재설정 링크를 다시 보냈어요'));
+  setMsg('remail','','');btn.disabled=true;
+  const res=await API.resetSend(v);btn.disabled=false;
+  if(res.error){setMsg('remail','err',authMsg(res.error));return;}
+  // 가입 여부와 상관없이 같은 화면을 보여 준다(계정 존재 노출 방지)
+  resetEmail=v;$('#resetTo').textContent=v;$('#resetForm').hidden=true;$('#resetDone').hidden=false;
+  $('#live').textContent='재설정 코드를 보냈어요';$('#resetDone h1').setAttribute('tabindex','-1');$('#resetDone h1').focus();});
+$('#resetAgain').addEventListener('click',async()=>{const r=await API.resetSend(resetEmail);toast(r.error?authMsg(r.error):'재설정 코드를 다시 보냈어요');});
+$('#rcode').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'').slice(0,6);});
+$('#resetVerify').addEventListener('submit',async e=>{e.preventDefault();
+  const code=$('#rcode').value,pw=$('#rpw').value,btn=e.target.querySelector('[type=submit]');
+  if(code.length<6){setMsg('rcode','err','메일로 받은 6자리 코드를 입력해 주세요');$('#rcode').focus();return;}
+  setMsg('rcode','','');
+  if(!Object.values(RULES).every(f=>f(pw))){setMsg('rpw','err','암호 조건을 모두 맞춰 주세요');$('#rpw').focus();return;}
+  setMsg('rpw','','');btn.disabled=true;
+  const r=await API.resetDo(resetEmail,code,pw);btn.disabled=false;
+  if(r.error){const c=r.error.code||'';
+    if(c==='same_password'||c==='weak_password'){setMsg('rpw','err',authMsg(r.error));$('#rpw').focus();}
+    else{setMsg('rcode','err',c==='otp_expired'||c==='validation_failed'?'코드가 맞지 않거나 시간이 지났어요. 새 코드를 받아 주세요':authMsg(r.error));$('#rcode').focus();}
+    return;}
+  $('#rcode').value='';$('#rpw').value='';
+  toast('암호를 바꿨어요');loginOk(nameOf(r.user));});
 
-/* ---------- notes drawer & toast ---------- */
-function setNotes(open){document.body.classList.toggle('notes-open',open);$('#fabLbl').textContent=open?'UX 노트 숨기기':'UX 노트 보기';$('#fab').setAttribute('aria-expanded',String(open));}
-$('#fab').addEventListener('click',()=>setNotes(!document.body.classList.contains('notes-open')));
-setNotes(window.matchMedia('(min-width:1180px)').matches);
+/* ---------- toast ---------- */
 
 let tt;function toast(t){let el=$('.toast');if(!el){el=document.createElement('div');el.className='toast';el.setAttribute('role','status');document.body.appendChild(el);}
   el.textContent=t;el.hidden=false;clearTimeout(tt);tt=setTimeout(()=>el.hidden=true,2400);}
 
 /* ---------- start ---------- */
-load();readHash();
+$('#demoNote').hidden=!DEMO;
+if(sb){ // 새로고침해도 로그인이 유지되도록 저장된 세션을 복원
+  sb.auth.getSession().then(({data})=>{if(data&&data.session)setUser(data.session.user);});
+  sb.auth.onAuthStateChange(ev=>{if(ev==='SIGNED_OUT'){S.user=null;$('#acctLbl').innerHTML='로그인<span class="lbl-long"> / 회원가입</span>';}});
+}
+load();
+// ux-notes.html의 "이 화면 보기" 링크(?demo): 앞 단계 입력을 샘플로 채워 뒤 단계를 바로 열어 줌
+if(new URLSearchParams(location.search).has('demo')){
+  const m=location.hash.match(/^#\/(\w+)(?:\/(\d))?/);
+  if(m&&m[1]==='signup'&&m[2])fillDemoUntil(+m[2]);
+  else if(m&&m[1]==='done')demoDone();
+}
+readHash();
 if(S.screen==='done')fillDone();
 render(false);push(true);
 })();

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HJ전자 UX 개선 노트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+:root{color-scheme:light}
+:root{
+  --bg:#FFFFFF; --surface:#FFFFFF; --ink:#1D1D1F; --muted:#6E6E73; --line:#E8E8ED; --line-strong:#C7C7CC;
+  --accent:#E0262F; --accent-hover:#C11C24; --on-accent:#FFFFFF;
+  --note:#F6F4F5; --note-ink:#3B3537; --note-line:#E6E0E1;
+  --font:"IBM Plex Sans KR",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141011; --surface:#1A1415; --ink:#F3ECEC; --muted:#B3A4A6; --line:#2E2526; --line-strong:#4A3D3F;
+  --accent:#E5383F; --accent-hover:#F25A60;
+  --note:#221B1C; --note-ink:#E8DCDD; --note-line:#3A2F30; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141011; --surface:#1A1415; --ink:#F3ECEC; --muted:#B3A4A6; --line:#2E2526; --line-strong:#4A3D3F;
+  --accent:#E5383F; --accent-hover:#F25A60;
+  --note:#221B1C; --note-ink:#E8DCDD; --note-line:#3A2F30; color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{margin:0;word-break:keep-all;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{text-wrap:balance;margin:0;line-height:1.3}
+.wrap{max-width:760px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
+.top{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--surface) 85%,transparent);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--line)}
+.top .wrap{height:52px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.top b{font-size:14px}
+.top a.back{font-size:13px;text-decoration:none;font-weight:600}
+.top a.back:hover{text-decoration:underline}
+.hero{padding:40px 0 8px}
+.hero h1{font-size:28px;font-weight:700}
+.hero p{color:var(--muted);margin:8px 0 0}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0 8px;padding:0;list-style:none}
+.toc a{display:inline-block;font-size:13px;border:1px solid var(--line-strong);border-radius:999px;padding:5px 12px;text-decoration:none;color:var(--ink);background:var(--surface)}
+.toc a:hover{border-color:var(--accent);color:var(--accent)}
+section{padding:32px 0 8px;border-top:1px solid var(--line);margin-top:32px}
+section:first-of-type{margin-top:16px}
+.sh{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.sh h2{font-size:20px;font-weight:700}
+.sh h2 .no{font-family:var(--mono);font-size:13px;color:var(--muted);font-weight:500;margin-right:8px}
+.view{font-size:13px;font-weight:600;text-decoration:none;border:1px solid var(--accent);border-radius:999px;padding:5px 12px;white-space:nowrap}
+.view:hover{background:var(--accent);color:var(--on-accent)}
+.note{border:1px solid var(--note-line);background:var(--note);color:var(--note-ink);border-radius:var(--r);padding:16px;margin-bottom:12px;font-size:14px}
+.note .p{font-family:var(--mono);font-size:12px;letter-spacing:.02em;margin-bottom:6px;color:var(--accent)}
+.note b{display:block;font-size:15px;font-weight:600;margin-bottom:8px;color:var(--ink)}
+.note .ba{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;line-height:1.55}
+.note .ba span:nth-child(odd){font-weight:600}
+footer{margin:48px 0 0;padding:24px 0 calc(32px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <b>HJ전자 UX 개선 노트</b>
+  <a class="back" href="index.html">← 프로토타입으로 돌아가기</a>
+</div></header>
+<main class="wrap">
+  <div class="hero">
+    <h1>UX 개선 노트</h1>
+    <p>애플 가입 흐름에서 발견한 문제를 HJ전자 프로토타입에서 어떻게 고쳤는지 화면별로 정리했어요. 각 항목은 “기존 문제 → 개선” 순서이고, 위에 적용한 UX 원칙을 붙였어요.</p>
+    <ul class="toc" id="toc" aria-label="화면 바로가기"></ul>
+  </div>
+  <div id="list"></div>
+</main>
+<footer><div class="wrap">HJ전자 스토어는 회원가입 UX 연습용 가상의 서비스예요. · <a href="index.html">프로토타입 열기</a></div></footer>
+<script>
+const NOTES={
+ home:{label:'01 스토어 메인',items:[
+  {p:'제이콥의 법칙 · 발견 가능성',t:'우측 상단에 "로그인 / 회원가입" 글자 노출',b:'GNB에 계정 진입점이 없고 쇼핑백 아이콘만 있음',a:'다른 쇼핑몰처럼 우측 상단에서 바로 찾을 수 있음'},
+  {p:'멘탈 모델 일치 · 닐슨 #2',t:'계정 메뉴와 장바구니 분리',b:'장바구니 안에 주문·계정·로그인 메뉴가 숨어 있음',a:'계정 아이콘을 누르면 로그인과 회원가입이 같은 크기 버튼으로 나옴'},
+  {p:'지연 가입',t:'히어로에 가입 혜택을 함께 노출',b:'가입해야 하는 이유를 알려주지 않음',a:'주문 조회·관심 목록 등 얻는 가치를 먼저 보여 줌'}]},
+ login:{label:'02 로그인',items:[
+  {p:'맥락 일치',t:'제목을 "HJ 계정으로 로그인"으로',b:'"더욱 빠르게 결제하시려면…" 결제 문구가 가장 큼',a:'가입하러 온 사람에게도 맞는 중립적 제목'},
+  {p:'점진적 공개 · 애플 로그인 흐름',t:'이메일 → 암호 2단계',b:'—',a:'이메일을 입력하면 암호 칸이 열리는 2단계 로그인'},
+  {p:'시각적 위계 · 피츠의 법칙',t:'"새 계정 만들기"를 로그인과 같은 크기 버튼으로',b:'작은 텍스트 링크 + ↗ 아이콘(외부 이동 신호)',a:'같은 사이트 안에서 이동, 버튼이라 누르기 쉬움'},
+  {p:'보안 · 오류 복구 · 닐슨 #9',t:'실패 시 같은 문구로 안내하고, 5회 실패하면 재설정 안내',b:'—',a:'이메일과 암호 중 무엇이 틀렸는지 알려 주지 않아 계정 존재가 드러나지 않고, 남은 횟수를 알려 줌'}]},
+ s1:{label:'03 가입 1단계',items:[
+  {p:'일관성 · 닐슨 #4 / 사용자 통제 · #3',t:'스토어 헤더 유지 + "쇼핑 계속하기"',b:'다른 사이트(account)로 넘어가고 돌아갈 길이 없음',a:'같은 사이트 안에서 진행, 언제든 쇼핑으로 복귀'},
+  {p:'점진적 공개 · 목표 기울기 효과',t:'4단계로 나누고 진행 막대 + 단계 표시',b:'긴 단일 폼, 끝이 어디인지 모름',a:'한 화면에 2~3개 입력만, 몇 단계 중 어디인지 보임'},
+  {p:'효율성 · 닐슨 #7',t:'성/이름 분리, 생년월일 한 칸 숫자 입력',b:'연/월/일 드롭다운 3개, 연도는 긴 스크롤',a:'19950312만 쳐도 1995.03.12로 자동 변환'},
+  {p:'인식 > 기억 · 닐슨 #6',t:'떠 있는 라벨(플로팅 라벨)로 입력 중에도 칸 이름 유지',b:'플레이스홀더가 라벨 역할, 이유는 ? 아이콘 안',a:'입력하면 라벨이 작아져 위로 올라가고, 예시와 수집 이유는 칸 아래에 항상 보임'},
+  {p:'사용자 통제 · 닐슨 #3',t:'새로고침·뒤로 가기에도 입력 유지',b:'—',a:'주소가 단계별로 바뀌어 뒤로 가기가 이전 단계로 가고, 입력값은 탭을 닫기 전까지 보존 (암호는 저장 안 함)'}]},
+ s2:{label:'04 가입 2단계',items:[
+  {p:'시각적 방해 제거',t:'암호를 입력하면 입력칸 아래에 말풍선으로 조건 표시',b:'툴팁이 위쪽 입력칸을 가림',a:'입력칸을 가리지 않고 아래에 나타나, 조건이 하나씩 체크되는 걸 보며 입력'},
+  {p:'인지 부하 · 밀러의 법칙',t:'조건 3개(8자 이상, 대문자, 숫자 또는 특수문자)로 제한',b:'대·소문자·숫자·특수문자 모두 필요',a:'기억 가능한 암호를 만들기 쉬움'},
+  {p:'시스템 상태 가시성 · 닐슨 #1',t:'암호 강도를 0~100%로 표시',b:'조건을 다 채워도 "90%"라 무엇이 부족한지 모름',a:'말풍선 안에서 길이·문자 종류에 따라 %가 오르고, 조건을 못 채우면 40% 미만에 머묾'},
+  {p:'오류 예방 · 닐슨 #5',t:'흔한 암호, 이메일·이름이 든 암호 차단, Caps Lock 경고',b:'조건만 맞으면 password1 같은 암호도 통과',a:'"너무 흔한 암호예요"처럼 이유를 알려 주고, 대문자 잠금 상태도 알려 줌 (password1 입력해 보기)'},
+  {p:'시스템 상태 가시성 · 닐슨 #1',t:'이미 가입한 이메일은 코드를 보내는 시점에 알려 주고 입력 화면으로 되돌림',b:'어느 단계에서 막혔는지 알기 어려움',a:'"코드를 보내는 중…"을 보여 주고, 이미 가입한 이메일이면 2단계로 돌아가 로그인 링크와 함께 안내'},
+  {p:'사용자 통제',t:'암호 보기 토글',b:'입력한 암호를 확인할 방법 없음',a:'오타를 직접 확인 가능'}]},
+ s3:{label:'05 가입 3단계',items:[
+  {p:'제이콥의 법칙',t:'맨 위에 "전체 동의"',b:'체크박스 5개를 하나씩 눌러야 함',a:'국내 사용자에게 익숙한 한 번 동의'},
+  {p:'그룹화 · 시각적 위계',t:'필수를 위, 선택을 아래로 묶고 [필수]/[선택] 태그',b:'선택(마케팅)이 위, 필수 여부는 긴 문장 한 줄로만 안내',a:'무엇을 꼭 체크해야 하는지 바로 구분'},
+  {p:'점진적 공개',t:'약관 상세는 "보기"로 펼치기',b:'긴 설명이 모두 펼쳐져 읽기 피로',a:'필요한 사람만 열어 봄'},
+  {p:'오류 예방',t:'필수 진행 수(0/3) 표시, 빠진 항목만 빨갛게',b:'누락은 제출 후에야 알 수 있음',a:'어느 항목이 빠졌는지 정확히 보임'}]},
+ s4:{label:'06 가입 4단계',items:[
+  {p:'오류 예방 · 오류 복구',t:'시도 5회 제한, 재전송 60초 간격·최대 3회',b:'—',a:'틀린 코드는 남은 횟수와 함께 알려 주고, 잠기면 새 코드를 받아 이어서 진행'},
+  {p:'효율성',t:'6칸 코드 입력, 자동 다음 칸 이동, 붙여넣기 지원, 자동 확인',b:'—',a:'메일에서 복사한 코드를 한 번에 붙여 넣으면 바로 가입 완료'},
+  {p:'사용자 통제 · 오류 복구',t:'"이메일 수정"과 재전송 타이머',b:'—',a:'이메일을 잘못 쓴 경우 2단계로 바로 돌아가고, 바꾼 이메일로 새 코드를 보냄'}]},
+ done:{label:'07 가입 완료',items:[
+  {p:'사용자 통제 · 닐슨 #3',t:'"보던 화면으로 돌아가기"',b:'가입 후 스토어로 돌아오는 안내 없음',a:'원래 하던 쇼핑으로 바로 복귀'},
+  {p:'시스템 상태 가시성',t:'헤더에 "○○님" 표시, 가입 내역 요약',b:'—',a:'로그인 상태와 인증한 이메일, 선택한 설정을 바로 확인'},
+  {p:'점진적 공개',t:'다음에 하면 좋은 일 3가지',b:'—',a:'패스키 만들기, 2단계 인증, 배송지 등록을 한 번에 안내하되 건너뛸 수 있음'}]},
+ reset:{label:'08 암호 재설정',items:[
+  {p:'보안 · 계정 존재 노출 방지',t:'"가입한 계정이 있다면 코드를 보냈어요" + 코드와 새 암호를 한 화면에서',b:'—',a:'가입 여부를 알려 주지 않아 이메일 수집 공격을 막음'},
+  {p:'오류 복구 · 닐슨 #9',t:'링크 다시 보내기, 로그인으로 돌아가기',b:'—',a:'메일이 안 와도 막히지 않고 다음 행동이 보임'}]}
+};
+// 각 화면을 프로토타입에서 바로 열어 볼 수 있는 링크 (?demo는 앞 단계 입력을 샘플로 채움)
+const LINKS={home:'index.html#/home',login:'index.html#/login',s1:'index.html#/signup/1',s2:'index.html?demo#/signup/2',s3:'index.html?demo#/signup/3',s4:'index.html?demo#/signup/4',done:'index.html?demo#/done',reset:'index.html#/reset'};
+document.getElementById('toc').innerHTML=Object.entries(NOTES).map(([k,v])=>`<li><a href="#${k}">${v.label}</a></li>`).join('');
+document.getElementById('list').innerHTML=Object.entries(NOTES).map(([k,v])=>{
+  const [no,...rest]=v.label.split(' ');
+  return `<section id="${k}"><div class="sh"><h2><span class="no">${no}</span>${rest.join(' ')}</h2><a class="view" href="${LINKS[k]}">이 화면 보기 →</a></div>`+
+  v.items.map(i=>`<div class="note"><div class="p">${i.p}</div><b>${i.t}</b><div class="ba"><span>기존</span><span>${i.b}</span><span>개선</span><span>${i.a}</span></div></div>`).join('')+`</section>`;
+}).join('');
+</script>
+</body>
+</html>
