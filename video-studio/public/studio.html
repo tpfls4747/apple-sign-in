@@ -167,6 +167,7 @@ body.export .ui{display:none}
       <button class="cbtn" id="prev">이전 장면</button>
       <button class="cbtn" id="next">다음 장면</button>
       <button class="cbtn on" id="subBtn" aria-pressed="true">자막 켜짐</button>
+      <button class="cbtn on" id="fxBtn" aria-pressed="true">효과음 켜짐</button>
       <button class="cbtn" id="edit" aria-pressed="false">텍스트 편집</button>
       <button class="cbtn" id="reset">원래 문구로</button>
       <span class="time" id="time">0:00 / 0:00</span>
@@ -219,11 +220,11 @@ const [BASE,BOX,PROJ]=await Promise.all([
   fetch('/api/projects/'+SLUG).then(r=>r.ok?r.json():{}).catch(()=>({}))]);
 const DATA=BASE.map(s=>Object.assign({},s));
 const IMG=new Proxy({},{get:(_,n)=>`/assets/shots/${String(n)}.jpg`});
-const AUD={music:'/assets/audio/music.m4a'};DATA.forEach((s,i)=>AUD['v'+(i+1)]=`/assets/voice/${String(i+1).padStart(2,'0')}_${s.id}.m4a`);
+const AUD={music:'/assets/audio/music.m4a',fx:Object.fromEntries(['whoosh','flip','click','pop','ding','err','chime'].map(k=>[k,`/assets/sfx/${k}.m4a`]))};DATA.forEach((s,i)=>AUD['v'+(i+1)]=`/assets/voice/${String(i+1).padStart(2,'0')}_${s.id}.m4a`);
 const MASCOT='/assets/mascot.png';
 const LEAD=0.6,TAIL=0.9;          // 목소리 앞뒤 여백(초)
 /* 프로젝트 = 기본값 위에 덮어쓰는 편집 내용 (Supabase에 저장) */
-let P=Object.assign({texts:{},says:{},voices:{},font:'Noto Sans KR',fontUrl:null,musicVolume:.6,voiceVolume:1,subtitles:true},(PROJ&&PROJ.data)||{});
+let P=Object.assign({texts:{},says:{},voices:{},font:'Noto Sans KR',fontUrl:null,musicVolume:.6,voiceVolume:1,subtitles:true,sfx:true},(PROJ&&PROJ.data)||{});
 function applyOverrides(){DATA.forEach((s,i)=>{const b=BASE[i],v=P.voices[s.id];s.say=P.says[s.id]||b.say;s.vdur=v?v.dur:b.vdur;
   s.dur=Math.max(b.dur,Math.round((LEAD+s.vdur+TAIL)*10)/10);});}
 applyOverrides();
@@ -300,7 +301,7 @@ const SCENES=[
   ${[1,2,3].map(i=>`<div class="pcard before" id="i_c${i}" style="left:${110+(i-1)*580}px;top:340px">
     <div class="num">0${i}</div><div class="tt" data-t="c${i}"></div><div class="art" id="i_a${i}">${introArt(i)}</div></div>`).join('')}`,
  draw(t,$){up($('i_eb'),k(t,.1,.5));up($('i_h'),k(t,.25,.7));
-  const at=[V('intro',.32),V('intro',.53),V('intro',.73)];
+  const at=[V('intro',0.339),V('intro',0.56),V('intro',0.773)];
   [1,2,3].forEach(i=>up($('i_c'+i),k(t,at[i-1]-.4,.6),40));
   const n=Math.max(0,Math.min(6,Math.floor((t-at[0])/0.35)));$('i_d1').textContent='•'.repeat(n);
   const sk=n>0?(t-at[0])-(n-1)*.35:9;$('i_e1').style.opacity=n>0?1:0;$('i_e1').style.transform=`translateX(${n>0&&sk<.22?Math.sin(sk*60)*6*(1-sk/.22):0}px)`;
@@ -330,8 +331,8 @@ const SCENES=[
     <div class="flipok" id="x_o${i}"><div class="ck">${ic('check')}</div><div class="num" style="color:var(--ok)">0${i} · 보완</div><div class="tt" data-t="f${i}"></div></div></div>`).join('')}
   <div class="pos" id="x_go" style="left:110px;top:870px;display:flex;align-items:center;gap:14px;font-size:30px;font-weight:700;color:var(--red)">${T('fix_go')}${ic('arrow')}</div>`,
  draw(t,$){up($('x_logo'),k(t,.05,.5));up($('x_h'),k(t,.2,.7));
-  [1,2,3].forEach(i=>{up($('x_c'+i),k(t,.4+i*.12,.5),20);const p=k(t,V('fix',.25)+i*.45,.5);const o=$('x_o'+i);o.style.opacity=p;o.style.transform=`rotateY(${(1-p)*80}deg) scale(${.94+.06*p})`;});
-  up($('x_go'),k(t,V('fix',.75),.6),14);}},
+  [1,2,3].forEach(i=>{up($('x_c'+i),k(t,.4+i*.12,.5),20);const p=k(t,V('fix',0.248)+i*.45,.5);const o=$('x_o'+i);o.style.opacity=p;o.style.transform=`rotateY(${(1-p)*80}deg) scale(${.94+.06*p})`;});
+  up($('x_go'),k(t,V('fix',0.749),.6),14);}},
 {id:'p1a',bg:'bg-warm',html:leftCol('p1a','p1_tag','p1a_h','p1a_s','')+`
   <div class="pos" style="left:820px;top:290px;width:960px" id="p1a_m"><div class="other" style="position:relative;padding:44px">
     <span class="siteby">다른 웹사이트</span>
@@ -341,7 +342,7 @@ const SCENES=[
   </div></div>
   <div class="pos" id="p1a_cnt" style="left:820px;top:760px;font-size:28px;font-weight:700;color:var(--red)">한 글자마다 경고 <span id="p1a_n" style="font-size:44px;font-weight:900">0</span>번</div>`,
  draw(t,$){leftDraw('p1a',t,$);up($('p1a_m'),k(t,.4,.6),30);
-  const t0=V('p1a',.28),n=Math.max(0,Math.min(9,Math.floor((t-t0)/0.42)));$('p1a_d').textContent='•'.repeat(n);
+  const t0=V('p1a',0.288),n=Math.max(0,Math.min(9,Math.floor((t-t0)/0.42)));$('p1a_d').textContent='•'.repeat(n);
   $('p1a_f').className='ofield'+(n>0?' err':'');const sk=n>0?(t-t0)-(n-1)*.42:9;
   $('p1a_e').style.opacity=n>0?1:0;$('p1a_e').style.transform=`translateX(${n>0&&sk<.25?Math.sin(sk*60)*8*(1-sk/.25):0}px)`;
   $('p1a_n').textContent=n;up($('p1a_cnt'),n>0?1:0,10);}},
@@ -350,7 +351,7 @@ const SCENES=[
   <div class="bubble ok" id="p1b_b2" style="left:1150px;top:850px">${ic('check')}비밀번호가 일치합니다.</div>
   <div class="bubble red" id="p1b_b3" style="left:1100px;top:850px">${ic('alert')}다르면 다음 단계로 넘어가지 않아요</div>`,
  draw(t,$){leftDraw('p1b',t,$);up($('p1b_win'),k(t,.2,.7),30);
-  const A=V('p1b',.05),B=V('p1b',.55),C=V('p1b',.76);
+  const A=V('p1b',0.051),B=V('p1b',0.535),C=V('p1b',0.766);
   camPath($('p1b_cam'),t,[[0,null,1],[A,BX.pw2,2.0],[C-.2,{x:500,y:650,width:440,height:150},1.75]]);
   imgShow('p1b','s2_typing',1);imgShow('p1b','s2_match',k(t,B,.4));imgShow('p1b','s2_mismatch',k(t,C,.4));
   hlAt($('p1b_hl2'),BX.pw2_ok,k(t,B+.2,.4)*(1-k(t,C,.3)));
@@ -368,7 +369,7 @@ const SCENES=[
  draw(t,$){up($('p1c_L'),k(t,.05,.5));up($('p1c_win'),1,0);
   camPath($('p1c_cam'),t,[[0,{x:500,y:650,width:440,height:150},1.75],[.4,BX.lock,2.4]]);imgShow('p1c','s2_match',1);
   hlAt($('p1c_hl2'),BX.lock,k(t,1.1,.4),8);bubble($('p1c_b'),k(t,1.4,.4));
-  up($('p1c_be'),k(t,V('p1c',.15),.5),16);[1,2,3].forEach(i=>up($('p1c_i'+i),k(t,V('p1c',.3)+i*.5,.5),20));}},
+  up($('p1c_be'),k(t,V('p1c',0.15),.5),16);[1,2,3].forEach(i=>up($('p1c_i'+i),k(t,V('p1c',0.3)+i*.5,.5),20));}},
 {id:'p2a',bg:'bg-warm',html:leftCol('p2a','p2_tag','p2a_h','p2a_s','')+`
   <div class="pos" style="left:860px;top:300px;width:900px" id="p2a_m"><div class="other" style="position:relative;padding:60px;text-align:center">
     <span class="siteby">다른 웹사이트</span>
@@ -376,14 +377,14 @@ const SCENES=[
     <div class="omsg" style="font-size:44px;color:#3A3A3A">탈퇴한 회원입니다.</div>
     <div style="font-size:26px;color:#8A8A8A;margin-top:12px">가입할 수 없습니다.</div>
     <div class="obtn" style="margin-top:36px">확인</div></div></div>`,
- draw(t,$){leftDraw('p2a',t,$);const p=k(t,V('p2a',.53),.35);const m=$('p2a_m');m.style.opacity=p;m.style.transform=`scale(${1.12-.12*p})`;}},
+ draw(t,$){leftDraw('p2a',t,$);const p=k(t,V('p2a',0.521),.35);const m=$('p2a_m');m.style.opacity=p;m.style.transform=`scale(${1.12-.12*p})`;}},
 {id:'p2b',bg:'bg-white',html:leftCol('p2b','p2b_tag','p2b_h','p2b_s','p2b_pr','solid')+win('p2b',['rejoin','s2_back'],'rejoin')+`
   <div class="bubble ok" id="p2b_b1" style="left:1110px;top:850px">"다시 돌아오셨군요!" 환영 인사</div>
   <div class="bubble" id="p2b_b2" style="left:1060px;top:850px">탈퇴한 기록과 날짜를 부드럽게</div>
   <div class="bubble red" id="p2b_b3" style="left:1100px;top:850px">다시 가입할 수 있는 날까지</div>
   <div class="bubble ok" id="p2b_b4" style="left:1060px;top:850px">${ic('check')}같은 이메일로 바로 다시 가입</div>`,
  draw(t,$){leftDraw('p2b',t,$);up($('p2b_win'),k(t,.2,.7),30);
-  const A=V('p2b',.08),B=V('p2b',.39),C=V('p2b',.59),E=V('p2b',.80);
+  const A=V('p2b',0.082),B=V('p2b',0.378),C=V('p2b',0.592),E=V('p2b',0.804);
   const R=BX;camPath($('p2b_cam'),t,[[0,null,1],[A,{x:500,y:150,width:440,height:150},1.9],[B,R.rj_lead,2.0],[C,R.rj_facts,1.8],[E,R.banner,1.9]]);
   imgShow('p2b','rejoin',1);imgShow('p2b','s2_back',k(t,E,.5));
   const sel=t<B?['ok',R.rj_hello,A+.5]:t<C?['',R.rj_lead,B+.5]:t<E?['',R.rj_open,C+.5]:['ok',R.banner,E+.6];
@@ -408,7 +409,7 @@ const SCENES=[
   <svg class="cursor" id="p3a_cur" style="position:absolute;width:40px;height:40px" aria-hidden="true"><use href="#i-cursor"/></svg>`,
  draw(t,$){leftDraw('p3a',t,$);up($('p3a_m'),k(t,.3,.6),30);
   const pts=[[1300,520],[1490,640],[1735,268],[1035,407],[1180,575]];/* wander → bag → login → create */
-  const t0=V('p3a',.2),seg=.75;let x=pts[0][0],y=pts[0][1];
+  const t0=V('p3a',0.219),seg=.75;let x=pts[0][0],y=pts[0][1];
   for(let i=1;i<pts.length;i++){const p=k(t,t0+(i-1)*seg,seg*.85);x=lerp(x,pts[i][0],p);y=lerp(y,pts[i][1],p);}
   const c=$('p3a_cur');c.style.left=x+'px';c.style.top=y+'px';c.style.opacity=k(t,t0-.3,.3);
   [1,2,3].forEach(i=>up($('p3a_s'+i),k(t,t0+(i+1)*seg-.1,.4),12));}},
@@ -418,7 +419,7 @@ const SCENES=[
   <div class="bubble ok" id="p3b_b3" style="left:1150px;top:850px">${ic('check')}로그인 화면도 같은 크기</div>
   <div class="pos counter" id="p3b_cnt" style="left:110px;top:640px"><span class="n old">3+</span><span class="n" id="p3b_n">2</span><span style="font-size:30px;font-weight:700">번 클릭이면 가입</span></div>`,
  draw(t,$){leftDraw('p3b',t,$);up($('p3b_win'),k(t,.2,.7),30);
-  const A=V('p3b',.05),B=V('p3b',.40),C=V('p3b',.55),E=V('p3b',.71);
+  const A=V('p3b',0.052),B=V('p3b',0.414),C=V('p3b',0.57),E=V('p3b',0.697);
   const acc=BX.acct,pop=BX.pop;
   camPath($('p3b_cam'),t,[[0,null,1],[A,{x:1000,y:0,width:440,height:200},2.2],[B,{x:1130,y:40,width:300,height:260},2.4],[C,{x:480,y:330,width:480,height:380},1.5]]);
   imgShow('p3b','home',1);imgShow('p3b','home_pop',k(t,B-.05,.25));imgShow('p3b','login',k(t,C,.45));
@@ -441,8 +442,8 @@ const SCENES=[
       <div data-t="end_by" style="font-size:46px;font-weight:900"></div>
       <div style="display:flex;align-items:center;gap:12px;opacity:.9"><svg style="width:46px;height:46px;color:#fff" aria-hidden="true"><use href="#i-logo"/></svg><div><div style="font-size:24px;font-weight:900;line-height:1">HJ전자</div><div style="font-size:11px;letter-spacing:.3em;margin-top:4px">ELECTRONICS</div></div></div>
     </div></div>`,
- draw(t,$){pop($('e_m'),k(t,.1,.8));up($('e_1'),k(t,.4,.9));up($('e_2'),k(t,V('end',.81),.7));
-  $('e_r').style.width=(k(t,V('end',.84),.8)*100)+'%';up($('e_by'),k(t,V('end',.88),.7));}}
+ draw(t,$){pop($('e_m'),k(t,.1,.8));up($('e_1'),k(t,.4,.9));up($('e_2'),k(t,V('end',0.815),.7));
+  $('e_r').style.width=(k(t,V('end',0.844),.8)*100)+'%';up($('e_by'),k(t,V('end',0.883),.7));}}
 ];
 function introArt(i){
   if(i===1)return `<div style="width:100%"><div class="ofield" id="i_f1" style="height:58px;font-size:26px"><span id="i_d1"></span></div><div class="oerr" id="i_e1" style="font-size:19px">${ic('alert')}<span>일치하지 않습니다</span></div></div>`;
@@ -473,6 +474,18 @@ function makeSubs(){SUBS=DATA.map(s=>{if(s.subs&&!P.says[s.id]&&!P.voices[s.id])
   return parts.map(p=>{const a=LEAD+acc/tot*s.vdur;acc+=p.length;return {a,b:LEAD+acc/tot*s.vdur+.25,txt:p};});});}
 makeSubs();
 let subsOn=P.subtitles!==false;
+/* 효과음: 중요한 순간에만 (장면 안 시각, 대본 진행률 기준이라 녹음 길이가 바뀌어도 따라가요) */
+const FX=[['intro',()=>V('intro',.339)+.05,'err'],['intro',()=>V('intro',.773)+.1+7*.42+.12,'pop'],
+  ['fix',()=>-.2,'whoosh'],['fix',()=>V('fix',.248)+.6,'flip'],['fix',()=>V('fix',.248)+1.05,'flip'],['fix',()=>V('fix',.248)+1.5,'flip'],
+  ['p1a',()=>V('p1a',.288)+.42,'err'],
+  ['p1b',()=>-.2,'whoosh'],['p1b',()=>V('p1b',.535)+.2,'ding'],['p1b',()=>V('p1b',.766)+.55,'click'],
+  ['p2a',()=>V('p2a',.521),'pop'],
+  ['p2b',()=>-.2,'whoosh'],['p2b',()=>V('p2b',.082)+.5,'ding'],['p2b',()=>V('p2b',.804)+.6,'ding'],
+  ['p3b',()=>-.2,'whoosh'],['p3b',()=>V('p3b',.414)-.35,'click'],['p3b',()=>V('p3b',.414)+1.0,'click'],['p3b',()=>V('p3b',.697)+.6,'pop'],
+  ['end',()=>-.2,'whoosh'],['end',()=>V('end',.883),'chime']];
+let FXON=P.sfx!==false;
+function fxList(){return FX.map(([id,f,k])=>{const i=SCENES.findIndex(s=>s.id===id);return {t:Math.max(0,starts[i]+f()),k};}).sort((a,b)=>a.t-b.t);}
+function fxFire(a,b){if(!FXON||!AUD.fx||b<a||b-a>.5)return;fxList().forEach(e=>{if(e.t>a&&e.t<=b){const x=new Audio(AUD.fx[e.k]);x.volume=Math.min(1,volV);x.play().catch(()=>{});}});}
 let cur=0,now=0;
 function seek(time){
   time=Math.max(0,Math.min(TOTAL-1e-6,time));
@@ -499,7 +512,7 @@ function audioSync(force){if(!musicEl)return;
     else if(!a.paused)a.pause();});}
 function audioStop(){if(!musicEl)return;musicEl.pause();Object.values(vEls).forEach(a=>a.pause());}
 let playing=false,last=0;
-function tick(ts){if(!playing)return;const dt=(ts-last)/1000;last=ts;now+=dt;if(now>=TOTAL){now=TOTAL-1e-6;play(false);}seek(now);audioSync(false);if(playing)requestAnimationFrame(tick);}
+function tick(ts){if(!playing)return;const dt=(ts-last)/1000;last=ts;const prev=now;now+=dt;fxFire(prev,now);if(now>=TOTAL){now=TOTAL-1e-6;play(false);}seek(now);audioSync(false);if(playing)requestAnimationFrame(tick);}
 function play(on){playing=on;$id('play').textContent=on?'일시정지':'재생';
   if(on){audioInit();if(now>=TOTAL-0.05)now=0;last=performance.now();audioSync(true);requestAnimationFrame(tick);}else audioStop();}
 function $id(x){return document.getElementById(x)}
@@ -517,6 +530,8 @@ $id('play').addEventListener('click',()=>play(!playing));
 $id('prev').addEventListener('click',()=>jump(Math.max(0,cur-(now-starts[cur]<.6?1:0))));
 $id('next').addEventListener('click',()=>jump(Math.min(SCENES.length-1,cur+1)));
 $id('scrub').addEventListener('input',e=>{seek(e.target.value/1000*TOTAL);if(playing)audioSync(true);});
+function fxBtnSync(){$id('fxBtn').classList.toggle('on',FXON);$id('fxBtn').textContent=FXON?'효과음 켜짐':'효과음 꺼짐';$id('fxBtn').setAttribute('aria-pressed',String(FXON));}
+$id('fxBtn').addEventListener('click',()=>{FXON=!FXON;fxBtnSync();});
 $id('subBtn').addEventListener('click',()=>{subsOn=!subsOn;$id('subBtn').classList.toggle('on',subsOn);$id('subBtn').textContent=subsOn?'자막 켜짐':'자막 꺼짐';$id('subBtn').setAttribute('aria-pressed',String(subsOn));seek(now);});
 let editing=false;
 $id('edit').addEventListener('click',()=>{editing=!editing;play(false);$id('edit').classList.toggle('on',editing);$id('edit').textContent=editing?'편집 끝내기':'텍스트 편집';$id('edit').setAttribute('aria-pressed',String(editing));
@@ -540,7 +555,7 @@ function dirty(){isDirty=true;setState('saveState','저장하지 않은 변경�
 setState('saveState',(PROJ&&PROJ.updated_at?'마지막 저장 '+new Date(PROJ.updated_at).toLocaleString('ko-KR')+' · ':'')+storageNote,'ok');
 async function api(method,url,body,extra){const r=await fetch(url,{method,headers:hdr(extra),body});let j={};try{j=await r.json();}catch(e){}
   if(!r.ok)throw new Error(j.error||('요청 실패 '+r.status));return j;}
-async function save(){P.voiceVolume=volV;P.musicVolume=volM;P.subtitles=subsOn;
+async function save(){P.voiceVolume=volV;P.musicVolume=volM;P.subtitles=subsOn;P.sfx=FXON;
   setState('saveState','저장하는 중…');
   try{const row=await api('PUT','/api/projects/'+SLUG,JSON.stringify({data:P}),{'Content-Type':'application/json'});isDirty=false;
     setState('saveState','저장했어요 '+new Date(row.updated_at).toLocaleTimeString('ko-KR')+' · '+storageNote,'ok');return true;}
@@ -620,6 +635,7 @@ $id('volV').addEventListener('input',e=>{volV=e.target.value/100;applyVol();dirt
 $id('volM').addEventListener('input',e=>{volM=e.target.value/100;applyVol();dirty();});
 $id('subBtn').classList.toggle('on',subsOn);$id('subBtn').textContent=subsOn?'자막 켜짐':'자막 꺼짐';
 $id('subBtn').addEventListener('click',dirty);
+fxBtnSync();$id('fxBtn').addEventListener('click',dirty);
 
 /* --- MP4 만들기 (서버 렌더) --- */
 let polling=null;
@@ -636,7 +652,7 @@ $id('renderBtn').addEventListener('click',async()=>{if(polling)return;
 
 /* --- 서버 렌더러용 --- */
 window.__video={ready:false,fps:30,seek:t=>seek(t),setSubs:on=>{subsOn=on;seek(now);},
-  info:()=>({scenes:SCENES.map((s,i)=>({id:s.id,dur:s.dur,voice:voiceSrc[s.id]})),music:AUD.music,musicVolume:volM,voiceVolume:volV,subtitles:subsOn})};
+  info:()=>({scenes:SCENES.map((s,i)=>({id:s.id,dur:s.dur,voice:voiceSrc[s.id]})),music:AUD.music,musicVolume:volM,voiceVolume:volV,subtitles:subsOn,fx:FXON?fxList().map(e=>({t:e.t,src:AUD.fx[e.k]})):[]})};
 if(EXPORT){document.body.classList.add('export');stage.style.transform='none';}
 await applyFont();
 await Promise.all([...document.images].map(im=>im.decode?im.decode().catch(()=>{}):null));

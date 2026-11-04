@@ -78,13 +78,24 @@ export async function renderProject({ slug, port, store, jobId, publicDir, local
       }
       start += s.dur;
     });
+    // 효과음: 장면 전환·클릭·성공 같은 중요한 순간에만 (목소리에 눌리지 않게 따로 섞음)
+    const fxLabels = [];
+    (info.fx || []).forEach((e, j) => {
+      inputs.push('-i', mediaPath(e.src, { publicDir, localDir }));
+      const idx = inputs.filter((x) => x === '-i').length - 1;
+      const ms = Math.max(0, Math.round(e.t * 1000));
+      parts.push(`[${idx}:a]aresample=48000,aformat=channel_layouts=stereo,volume=${Math.min(1, info.voiceVolume).toFixed(2)},adelay=${ms}|${ms}[f${j}]`);
+      fxLabels.push(`[f${j}]`);
+    });
     const musicDb = 20 * Math.log10(Math.max(0.001, info.musicVolume / 0.6)) - 2;
     let fc = parts.join(';');
+    if (fc) fc += ';';
     if (labels.length) {
-      fc += `;${labels.join('')}amix=inputs=${labels.length}:normalize=0,apad[vo];[vo]asplit[vk][vm];`;
-      fc += `[1:a]volume=${musicDb.toFixed(1)}dB[mu];[mu][vk]sidechaincompress=threshold=0.03:ratio=4:attack=20:release=400[duck];[vm][duck]amix=inputs=2:normalize=0,alimiter=limit=0.95[a]`;
+      fc += `${labels.join('')}amix=inputs=${labels.length}:normalize=0,apad[vo];[vo]asplit[vk][vm];`;
+      fc += `[1:a]volume=${musicDb.toFixed(1)}dB[mu];[mu][vk]sidechaincompress=threshold=0.03:ratio=4:attack=20:release=400[duck];`;
+      fc += `[vm][duck]${fxLabels.join('')}amix=inputs=${2 + fxLabels.length}:normalize=0,alimiter=limit=0.95[a]`;
     } else {
-      fc = `[1:a]volume=${musicDb.toFixed(1)}dB,apad[a]`;
+      fc += `[1:a]volume=${musicDb.toFixed(1)}dB,apad[mu];[mu]${fxLabels.join('')}amix=inputs=${1 + fxLabels.length}:normalize=0,alimiter=limit=0.95[a]`;
     }
     await run('ffmpeg', ['-y', '-loglevel', 'error', ...inputs, '-filter_complex', fc, '-map', '0:v', '-map', '[a]',
       '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-movflags', '+faststart', final]);
