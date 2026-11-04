@@ -699,6 +699,12 @@ const API={
     // 이미 가입한 이메일이면 Supabase는 오류 대신 identities가 빈 가짜 사용자를 돌려준다
     if(d.user&&Array.isArray(d.user.identities)&&d.user.identities.length===0)return {exists:true};
     return {ok:true};},
+  // 2단계에서 미리 확인: 인증까지 마친 이메일이면 registered:true. DB 함수(email_is_registered)가 없거나 오류면 unknown(막지 않고 4단계에서 다시 확인)
+  async emailRegistered(email){
+    if(DEMO)return {ok:true,registered:false};if(!sb)return {unknown:true};
+    const {data,error}=await sb.rpc('email_is_registered',{p_email:email});
+    if(error)return {unknown:true};
+    return {ok:true,registered:data===true};},
   async resend(email){if(DEMO)return {ok:true};if(!sb)return NOSB;const {error}=await sb.auth.resend({type:'signup',email});return error?{error}:{ok:true};},
   async verify(email,token){
     if(DEMO)return token===DEMO_CODE?{ok:true}:{error:{code:'otp_expired'}};
@@ -941,7 +947,18 @@ $('form[data-step="2"]').addEventListener('submit',async e=>{e.preventDefault();
   let em=checkEmail(true);
   {const wd=withdrawnInfo($('#email').value.trim().toLowerCase());if(wd&&wd.blocked){showRejoin($('#email').value);return;}}
   const ok=[em,pwOk(),checkPw2(true)].every(Boolean);
-  if(!ok){focusFirstErr();$('#live').textContent='입력을 확인해 주세요';return;}setStep(3);});
+  if(!ok){focusFirstErr();$('#live').textContent='입력을 확인해 주세요';return;}
+  // 약관(3단계)·코드(4단계)까지 가기 전에, 이미 가입한 이메일인지 미리 확인한다
+  const k=$('#email').value.trim().toLowerCase(),btn=e.target.querySelector('[type=submit]');
+  if(S.eRes[k]===undefined){
+    btn.disabled=true;btn.textContent='이메일 확인 중…';
+    const r=await API.emailRegistered(k);
+    btn.disabled=false;btn.textContent='다음';
+    if($('#email').value.trim().toLowerCase()!==k)return; // 기다리는 사이 이메일을 바꿨다면 이 응답은 버린다
+    if(r.ok)S.eRes[k]=r.registered?'taken':'free'; // 확인하지 못했으면(unknown) 기록하지 않고 4단계에서 다시 확인
+  }
+  if(S.eRes[k]==='taken'){checkEmail(true);focusFirstErr();$('#live').textContent='이미 가입된 이메일이에요';return;}
+  setStep(3);});
 
 /* agreements */
 const req=['ag1','ag2','ag3'],all=['ag1','ag2','ag3','ag4','ag5'];

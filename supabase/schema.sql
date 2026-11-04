@@ -119,3 +119,27 @@ revoke all on public.profiles from anon, authenticated;
 grant select on public.profiles to authenticated;
 grant update (last_name, first_name, birth_date, country, marketing_email, marketing_app)
   on public.profiles to authenticated;
+
+-- 5) 가입 화면에서 "이미 가입한 이메일"을 미리 알려 주는 함수 ---------------------
+-- Supabase Auth는 이미 가입한 이메일로 signUp해도 오류 없이 성공처럼 응답하므로,
+-- 가입 2단계에서 미리 확인하려면 이 함수가 필요하다. (없어도 가입은 되고, 4단계에서 뒤늦게 알게 될 뿐이다)
+-- 인증을 마친 계정만 true. 인증 전 계정은 false라서 같은 이메일로 다시 가입(코드 재발송)할 수 있다.
+--
+-- 주의: 누구나(비로그인 포함) 이 함수를 불러 이메일의 가입 여부를 알아낼 수 있다.
+--   가입 화면 UX를 위해 일부러 감수한 절충이다. 이 노출이 부담스러우면 이 함수와 호출을 지운다.
+create or replace function public.email_is_registered(p_email text)
+returns boolean
+language sql
+security definer
+set search_path = ''
+stable
+as $$
+  select exists (
+    select 1 from auth.users
+    where lower(email) = lower(p_email)
+      and email_confirmed_at is not null
+  );
+$$;
+
+revoke all on function public.email_is_registered(text) from public;
+grant execute on function public.email_is_registered(text) to anon, authenticated;
